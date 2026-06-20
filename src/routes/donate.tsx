@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { CreditCard, Lock, Check, Heart } from "lucide-react";
+import { CreditCard, Lock, Check, Heart, HeartHandshake, Package, Share2, Megaphone, Lightbulb, Users } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { submitVolunteerOffer } from "@/lib/public.functions";
+import { OFFER_TYPES } from "@/lib/media";
 
 export const Route = createFileRoute("/donate")({
   head: () => ({

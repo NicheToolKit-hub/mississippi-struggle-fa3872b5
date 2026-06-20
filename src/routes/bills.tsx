@@ -216,7 +216,7 @@ function BillsPage() {
                           positionStyles[bill.position],
                         )}
                       >
-                        We {bill.position.toLowerCase()}
+                        {bill.position === "Watching" ? "Watching" : `We ${bill.position.toLowerCase()}`}
                       </span>
                     </div>
                     <h2 className="mt-3 text-xl">{bill.title}</h2>

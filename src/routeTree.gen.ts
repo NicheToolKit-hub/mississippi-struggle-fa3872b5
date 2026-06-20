@@ -17,6 +17,7 @@ import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PetitionsRouteImport } from './routes/petitions'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BillsRouteImport } from './routes/bills'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -64,6 +65,11 @@ const DonateRoute = DonateRouteImport.update({
   path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BillsRoute = BillsRouteImport.update({
   id: '/bills',
   path: '/bills',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bills': typeof BillsRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bills': typeof BillsRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/bills': typeof BillsRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bills'
+    | '/contact'
     | '/donate'
     | '/education'
     | '/petitions'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bills'
+    | '/contact'
     | '/donate'
     | '/education'
     | '/petitions'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/bills'
+    | '/contact'
     | '/donate'
     | '/education'
     | '/petitions'
@@ -195,6 +207,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BillsRoute: typeof BillsRoute
+  ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
   EducationRoute: typeof EducationRoute
   PetitionsRoute: typeof PetitionsRoute
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/donate'
       fullPath: '/donate'
       preLoaderRoute: typeof DonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bills': {
@@ -336,6 +356,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BillsRoute: BillsRoute,
+  ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
   EducationRoute: EducationRoute,
   PetitionsRoute: PetitionsRoute,

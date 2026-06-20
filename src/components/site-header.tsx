@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logoAsset from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** Primary site navigation. Links map 1:1 to the file-based routes. */
 const navLinks = [
   { to: "/", label: "Home" },
+  { to: "/profiles", label: "Voices Inside" },
   { to: "/bills", label: "Bills & Laws" },
   { to: "/education", label: "Education" },
   { to: "/petitions", label: "Petitions" },
   { to: "/resources", label: "Resources" },
+  { to: "/podcast", label: "Podcast" },
+  { to: "/contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader() {
@@ -27,7 +30,7 @@ export function SiteHeader() {
       </a>
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="Mississippi Struggle home">
-          <img src={logo} alt="" width={40} height={40} className="h-10 w-10 shrink-0" />
+          <img src={logoAsset.url} alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain" />
           <span className="flex min-w-0 flex-col leading-tight">
             <span className="truncate font-display text-base font-bold text-foreground">
               Mississippi Struggle
@@ -38,7 +41,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-1 xl:flex">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -59,7 +62,7 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -72,7 +75,7 @@ export function SiteHeader() {
       {/* Mobile menu */}
       <div
         className={cn(
-          "overflow-hidden border-t border-border lg:hidden",
+          "overflow-hidden border-t border-border xl:hidden",
           open ? "block" : "hidden",
         )}
       >
@@ -89,6 +92,13 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <Link
+            to="/submit"
+            onClick={() => setOpen(false)}
+            className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            Submit Content
+          </Link>
           <Button asChild variant="donate" className="mt-2">
             <Link to="/donate" onClick={() => setOpen(false)}>
               Donate Now

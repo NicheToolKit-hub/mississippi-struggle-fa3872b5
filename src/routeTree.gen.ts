@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ProfilesRouteImport } from './routes/profiles'
@@ -22,6 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfilesIdRouteImport } from './routes/profiles.$id'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const SubmitRoute = SubmitRouteImport.update({
+  id: '/submit',
+  path: '/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/profiles'
     | '/resources'
     | '/sitemap.xml'
+    | '/submit'
     | '/admin'
     | '/profiles/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/profiles'
     | '/resources'
     | '/sitemap.xml'
+    | '/submit'
     | '/admin'
     | '/profiles/$id'
   id:
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/profiles'
     | '/resources'
     | '/sitemap.xml'
+    | '/submit'
     | '/_authenticated/admin'
     | '/profiles/$id'
   fileRoutesById: FileRoutesById
@@ -177,10 +189,18 @@ export interface RootRouteChildren {
   ProfilesRoute: typeof ProfilesRouteWithChildren
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SubmitRoute: typeof SubmitRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/submit': {
+      id: '/submit'
+      path: '/submit'
+      fullPath: '/submit'
+      preLoaderRoute: typeof SubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfilesRoute: ProfilesRouteWithChildren,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SubmitRoute: SubmitRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

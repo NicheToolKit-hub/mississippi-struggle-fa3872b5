@@ -34,8 +34,17 @@ function initials(name: string) {
   return name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase();
 }
 
+type ProfileCard = {
+  id: string;
+  name: string;
+  facility: string | null;
+  bio: string | null;
+  featured: boolean;
+  photoUrl: string | null;
+};
+
 function ProfilesPage() {
-  const { profiles } = Route.useLoaderData();
+  const { profiles } = Route.useLoaderData() as { profiles: ProfileCard[] };
 
   return (
     <>

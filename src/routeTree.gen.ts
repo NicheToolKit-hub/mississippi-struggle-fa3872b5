@@ -19,6 +19,7 @@ import { Route as BillsRouteImport } from './routes/bills'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfilesIdRouteImport } from './routes/profiles.$id'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -70,6 +71,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfilesIdRoute = ProfilesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ProfilesRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -83,10 +89,11 @@ export interface FileRoutesByFullPath {
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
-  '/profiles': typeof ProfilesRoute
+  '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -95,10 +102,11 @@ export interface FileRoutesByTo {
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
-  '/profiles': typeof ProfilesRoute
+  '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,10 +117,11 @@ export interface FileRoutesById {
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
-  '/profiles': typeof ProfilesRoute
+  '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/sitemap.xml'
     | '/admin'
+    | '/profiles/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/sitemap.xml'
     | '/admin'
+    | '/profiles/$id'
   id:
     | '__root__'
     | '/'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/profiles/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -162,7 +174,7 @@ export interface RootRouteChildren {
   DonateRoute: typeof DonateRoute
   EducationRoute: typeof EducationRoute
   PetitionsRoute: typeof PetitionsRoute
-  ProfilesRoute: typeof ProfilesRoute
+  ProfilesRoute: typeof ProfilesRouteWithChildren
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -239,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profiles/$id': {
+      id: '/profiles/$id'
+      path: '/$id'
+      fullPath: '/profiles/$id'
+      preLoaderRoute: typeof ProfilesIdRouteImport
+      parentRoute: typeof ProfilesRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -260,6 +279,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ProfilesRouteChildren {
+  ProfilesIdRoute: typeof ProfilesIdRoute
+}
+
+const ProfilesRouteChildren: ProfilesRouteChildren = {
+  ProfilesIdRoute: ProfilesIdRoute,
+}
+
+const ProfilesRouteWithChildren = ProfilesRoute._addFileChildren(
+  ProfilesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -268,7 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   DonateRoute: DonateRoute,
   EducationRoute: EducationRoute,
   PetitionsRoute: PetitionsRoute,
-  ProfilesRoute: ProfilesRoute,
+  ProfilesRoute: ProfilesRouteWithChildren,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }

@@ -5,10 +5,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const BUCKET = "submission-uploads";
 const SIGNED_TTL = 60 * 60 * 24 * 7;
 
-type AuthedSupabase = Parameters<
-  Parameters<typeof createServerFn>[0] extends never ? never : never
->;
-
 /** Throws unless the calling user holds the admin role. */
 async function assertAdmin(context: { supabase: any; userId: string }) {
   const { data, error } = await context.supabase.rpc("has_role", {

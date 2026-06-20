@@ -9,14 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ProfilesRouteImport } from './routes/profiles'
+import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PetitionsRouteImport } from './routes/petitions'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BillsRouteImport } from './routes/bills'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfilesIdRouteImport } from './routes/profiles.$id'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const SubmitRoute = SubmitRouteImport.update({
+  id: '/submit',
+  path: '/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -25,6 +38,16 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilesRoute = ProfilesRouteImport.update({
+  id: '/profiles',
+  path: '/profiles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PodcastRoute = PodcastRouteImport.update({
+  id: '/podcast',
+  path: '/podcast',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PetitionsRoute = PetitionsRouteImport.update({
@@ -42,9 +65,23 @@ const DonateRoute = DonateRouteImport.update({
   path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BillsRoute = BillsRouteImport.update({
   id: '/bills',
   path: '/bills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -52,77 +89,144 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfilesIdRoute = ProfilesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ProfilesRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/bills': typeof BillsRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
+  '/podcast': typeof PodcastRoute
+  '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/bills': typeof BillsRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
+  '/podcast': typeof PodcastRoute
+  '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bills': typeof BillsRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
+  '/podcast': typeof PodcastRoute
+  '/profiles': typeof ProfilesRouteWithChildren
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/submit': typeof SubmitRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/bills'
+    | '/contact'
     | '/donate'
     | '/education'
     | '/petitions'
+    | '/podcast'
+    | '/profiles'
     | '/resources'
     | '/sitemap.xml'
+    | '/submit'
+    | '/admin'
+    | '/profiles/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/bills'
+    | '/contact'
     | '/donate'
     | '/education'
     | '/petitions'
+    | '/podcast'
+    | '/profiles'
     | '/resources'
     | '/sitemap.xml'
+    | '/submit'
+    | '/admin'
+    | '/profiles/$id'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
     | '/bills'
+    | '/contact'
     | '/donate'
     | '/education'
     | '/petitions'
+    | '/podcast'
+    | '/profiles'
     | '/resources'
     | '/sitemap.xml'
+    | '/submit'
+    | '/_authenticated/admin'
+    | '/profiles/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   BillsRoute: typeof BillsRoute
+  ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
   EducationRoute: typeof EducationRoute
   PetitionsRoute: typeof PetitionsRoute
+  PodcastRoute: typeof PodcastRoute
+  ProfilesRoute: typeof ProfilesRouteWithChildren
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SubmitRoute: typeof SubmitRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/submit': {
+      id: '/submit'
+      path: '/submit'
+      fullPath: '/submit'
+      preLoaderRoute: typeof SubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -135,6 +239,20 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profiles': {
+      id: '/profiles'
+      path: '/profiles'
+      fullPath: '/profiles'
+      preLoaderRoute: typeof ProfilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/podcast': {
+      id: '/podcast'
+      path: '/podcast'
+      fullPath: '/podcast'
+      preLoaderRoute: typeof PodcastRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/petitions': {
@@ -158,11 +276,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bills': {
       id: '/bills'
       path: '/bills'
       fullPath: '/bills'
       preLoaderRoute: typeof BillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -172,28 +311,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profiles/$id': {
+      id: '/profiles/$id'
+      path: '/$id'
+      fullPath: '/profiles/$id'
+      preLoaderRoute: typeof ProfilesIdRouteImport
+      parentRoute: typeof ProfilesRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface ProfilesRouteChildren {
+  ProfilesIdRoute: typeof ProfilesIdRoute
+}
+
+const ProfilesRouteChildren: ProfilesRouteChildren = {
+  ProfilesIdRoute: ProfilesIdRoute,
+}
+
+const ProfilesRouteWithChildren = ProfilesRoute._addFileChildren(
+  ProfilesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   BillsRoute: BillsRoute,
+  ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
   EducationRoute: EducationRoute,
   PetitionsRoute: PetitionsRoute,
+  PodcastRoute: PodcastRoute,
+  ProfilesRoute: ProfilesRouteWithChildren,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SubmitRoute: SubmitRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { CreditCard, Lock, Check, Heart } from "lucide-react";
+import { CreditCard, Lock, Check, Heart, HeartHandshake, Package, Share2, Megaphone, Lightbulb, Users } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { submitVolunteerOffer } from "@/lib/public.functions";
+import { OFFER_TYPES } from "@/lib/media";
 
 export const Route = createFileRoute("/donate")({
   head: () => ({
@@ -279,6 +282,111 @@ function DonatePage() {
           </section>
         </aside>
       </div>
+
+      <MoreWaysToGive />
     </>
+  );
+}
+
+function MoreWaysToGive() {
+  const [offerType, setOfferType] = useState<string>("time");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [details, setDetails] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    try {
+      await submitVolunteerOffer({ data: { offerType, name, email, details: details || null } });
+      setDone(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="bg-secondary py-16" aria-labelledby="more-ways-heading">
+      <div className="container-page grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-widest text-gold">Beyond dollars</p>
+          <h2 id="more-ways-heading" className="mt-2 text-2xl md:text-3xl">More ways to give</h2>
+          <p className="mt-3 text-muted-foreground">
+            Money is only one way to power this movement. Give your time, supplies, connections,
+            or expertise — every contribution moves the work forward.
+          </p>
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {[
+              { icon: HeartHandshake, label: "Volunteer your time", text: "Mentoring, events, admin, research." },
+              { icon: Package, label: "Donate supplies", text: "Books, materials, office and program needs." },
+              { icon: Share2, label: "Networking", text: "Open doors to partners and resources." },
+              { icon: Megaphone, label: "Advertising & links", text: "Amplify us online and offline." },
+              { icon: Lightbulb, label: "Ideas & expertise", text: "Skills, advice, and fresh thinking." },
+              { icon: Users, label: "Spread support", text: "Bring your community into the fight." },
+            ].map((w) => (
+              <li key={w.label} className="flex gap-3 rounded-lg border border-border bg-card p-4">
+                <w.icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-semibold">{w.label}</p>
+                  <p className="text-xs text-muted-foreground">{w.text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <Card className="shadow-[var(--shadow-card)]">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold">Offer your support</h3>
+            {done ? (
+              <div role="status" className="mt-4 flex items-start gap-3 rounded-lg bg-success/10 p-4 text-sm">
+                <Check className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
+                <p>Thank you! Your offer has been received. Our team will follow up using the email you provided.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                <div>
+                  <Label htmlFor="offer-type">How would you like to help?</Label>
+                  <select
+                    id="offer-type"
+                    value={offerType}
+                    onChange={(e) => setOfferType(e.target.value)}
+                    className="mt-1.5 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {OFFER_TYPES.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="offer-name">Name</Label>
+                    <Input id="offer-name" required value={name} onChange={(e) => setName(e.target.value)} maxLength={120} className="mt-1.5" />
+                  </div>
+                  <div>
+                    <Label htmlFor="offer-email">Email</Label>
+                    <Input id="offer-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} className="mt-1.5" />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="offer-details">Tell us more</Label>
+                  <Textarea id="offer-details" value={details} onChange={(e) => setDetails(e.target.value)} maxLength={2000} rows={4} className="mt-1.5" placeholder="What can you offer, and when?" />
+                </div>
+                {error && <p role="alert" className="text-sm text-crimson">{error}</p>}
+                <Button type="submit" variant="donate" disabled={busy}>
+                  {busy ? "Sending…" : "Submit my offer"}
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </section>
   );
 }

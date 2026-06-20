@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin } from "lucide-react";
+import logoAsset from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -16,7 +16,7 @@ export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
-  /** Newsletter sign-up. Wire to Lovable Cloud / Supabase `subscribers` table later. */
+  /** Newsletter sign-up. Wire to a subscribers table later. */
   function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
@@ -29,7 +29,7 @@ export function SiteFooter() {
       <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-1">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="" width={40} height={40} loading="lazy" className="h-10 w-10" />
+            <img src={logoAsset.url} alt="" width={44} height={44} loading="lazy" className="h-11 w-11 object-contain" />
             <span className="font-display text-lg font-bold">Mississippi Struggle</span>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-primary-foreground/75">
@@ -55,28 +55,32 @@ export function SiteFooter() {
         <nav aria-label="Footer" className="text-sm">
           <h2 className="font-display text-base font-bold">Explore</h2>
           <ul className="mt-4 space-y-2.5 text-primary-foreground/75">
+            <li><Link to="/profiles" className="hover:text-gold">Voices Inside</Link></li>
             <li><Link to="/bills" className="hover:text-gold">Bills &amp; Laws</Link></li>
             <li><Link to="/education" className="hover:text-gold">Education &amp; Law</Link></li>
             <li><Link to="/petitions" className="hover:text-gold">Petitions</Link></li>
+            <li><Link to="/podcast" className="hover:text-gold">Podcast &amp; Video</Link></li>
             <li><Link to="/resources" className="hover:text-gold">Resources</Link></li>
-            <li><Link to="/donate" className="hover:text-gold">Donate</Link></li>
           </ul>
         </nav>
 
         <div className="text-sm">
-          <h2 className="font-display text-base font-bold">Contact</h2>
-          <ul className="mt-4 space-y-3 text-primary-foreground/75">
+          <h2 className="font-display text-base font-bold">Get involved</h2>
+          <ul className="mt-4 space-y-2.5 text-primary-foreground/75">
+            <li><Link to="/submit" className="hover:text-gold">Submit content</Link></li>
+            <li><Link to="/donate" className="hover:text-gold">Donate or volunteer</Link></li>
+            <li><Link to="/contact" className="hover:text-gold">Contact us</Link></li>
+          </ul>
+          <ul className="mt-5 space-y-3 text-primary-foreground/75">
+            <li className="flex items-start gap-2.5">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
+              <a href="mailto:Mississippi.Struggle@gmail.com" className="hover:text-gold break-all">
+                Mississippi.Struggle@gmail.com
+              </a>
+            </li>
             <li className="flex items-start gap-2.5">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
-              <span>200 Justice Way, Suite 4<br />Jackson, MS 39201</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <Phone className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
-              <a href="tel:+16015550199" className="hover:text-gold">(601) 555-0199</a>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <Mail className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />
-              <a href="mailto:hello@msstruggle.org" className="hover:text-gold">hello@msstruggle.org</a>
+              <span>Jackson, Mississippi</span>
             </li>
           </ul>
         </div>
@@ -114,9 +118,9 @@ export function SiteFooter() {
             A registered 501(c)(3) nonprofit. EIN 00-0000000. Contributions are
             tax-deductible to the extent allowed by law.
           </p>
-          <p className="text-primary-foreground/50">
-            This is a demonstration site. Statistics and donor data are illustrative.
-          </p>
+          <Link to="/auth" className="text-primary-foreground/50 hover:text-gold">
+            Team sign in
+          </Link>
         </div>
       </div>
     </footer>

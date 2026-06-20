@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PetitionsRouteImport } from './routes/petitions'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as DonateRouteImport } from './routes/donate'
@@ -28,6 +29,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilesRoute = ProfilesRouteImport.update({
+  id: '/profiles',
+  path: '/profiles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PetitionsRoute = PetitionsRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
+  '/profiles': typeof ProfilesRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
+  '/profiles': typeof ProfilesRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
+  '/profiles': typeof ProfilesRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/donate'
     | '/education'
     | '/petitions'
+    | '/profiles'
     | '/resources'
     | '/sitemap.xml'
     | '/admin'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/donate'
     | '/education'
     | '/petitions'
+    | '/profiles'
     | '/resources'
     | '/sitemap.xml'
     | '/admin'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/donate'
     | '/education'
     | '/petitions'
+    | '/profiles'
     | '/resources'
     | '/sitemap.xml'
     | '/_authenticated/admin'
@@ -150,6 +162,7 @@ export interface RootRouteChildren {
   DonateRoute: typeof DonateRoute
   EducationRoute: typeof EducationRoute
   PetitionsRoute: typeof PetitionsRoute
+  ProfilesRoute: typeof ProfilesRoute
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profiles': {
+      id: '/profiles'
+      path: '/profiles'
+      fullPath: '/profiles'
+      preLoaderRoute: typeof ProfilesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/petitions': {
@@ -248,6 +268,7 @@ const rootRouteChildren: RootRouteChildren = {
   DonateRoute: DonateRoute,
   EducationRoute: EducationRoute,
   PetitionsRoute: PetitionsRoute,
+  ProfilesRoute: ProfilesRoute,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }

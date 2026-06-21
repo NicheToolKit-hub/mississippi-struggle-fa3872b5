@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink } from "lucide-react";
+import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell } from "lucide-react";
 import {
+  getReviewCounts,
   listSubmissions,
   approveSubmission,
   rejectSubmission,
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 function AdminPage() {
   const { isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const counts = useReviewCounts(isAdmin);
 
   async function handleSignOut() {
     await signOut();
@@ -79,9 +81,15 @@ function AdminPage() {
 
       <Tabs defaultValue="pending" className="mt-8">
         <TabsList className="flex flex-wrap">
-          <TabsTrigger value="pending"><Inbox className="mr-1.5 h-4 w-4" /> Submissions</TabsTrigger>
-          <TabsTrigger value="offers"><Users className="mr-1.5 h-4 w-4" /> Offers</TabsTrigger>
-          <TabsTrigger value="messages"><Mail className="mr-1.5 h-4 w-4" /> Messages</TabsTrigger>
+          <TabsTrigger value="pending">
+            <Inbox className="mr-1.5 h-4 w-4" /> Submissions <CountBadge n={counts.pendingSubmissions} />
+          </TabsTrigger>
+          <TabsTrigger value="offers">
+            <Users className="mr-1.5 h-4 w-4" /> Offers <CountBadge n={counts.newOffers} />
+          </TabsTrigger>
+          <TabsTrigger value="messages">
+            <Mail className="mr-1.5 h-4 w-4" /> Messages <CountBadge n={counts.newMessages} />
+          </TabsTrigger>
           <TabsTrigger value="profiles"><Users className="mr-1.5 h-4 w-4" /> Profiles</TabsTrigger>
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
         </TabsList>
@@ -100,6 +108,51 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{children}</p>;
 }
 
+type Counts = { pendingSubmissions: number; newOffers: number; newMessages: number };
+const EMPTY_COUNTS: Counts = { pendingSubmissions: 0, newOffers: 0, newMessages: 0 };
+
+/**
+ * Polls the unreviewed-item counts every 20s while an admin is viewing the
+ * dashboard, and raises a toast notification whenever the total grows — so
+ * new submissions surface without a manual refresh.
+ */
+function useReviewCounts(isAdmin: boolean): Counts {
+  const fetchCounts = useServerFn(getReviewCounts);
+  const { data } = useQuery({
+    queryKey: ["admin-review-counts"],
+    queryFn: () => fetchCounts(),
+    enabled: isAdmin,
+    refetchInterval: 20_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const counts = data ?? EMPTY_COUNTS;
+  const total = counts.pendingSubmissions + counts.newOffers + counts.newMessages;
+  const prevTotal = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prevTotal.current !== null && total > prevTotal.current) {
+      const diff = total - prevTotal.current;
+      toast.info(`${diff} new submission${diff === 1 ? "" : "s"} awaiting review`, {
+        icon: <Bell className="h-4 w-4" />,
+      });
+    }
+    prevTotal.current = total;
+  }, [total]);
+
+  return counts;
+}
+
+function CountBadge({ n }: { n: number }) {
+  if (!n) return null;
+  return (
+    <Badge variant="destructive" className="ml-1.5 h-5 min-w-5 justify-center px-1.5 text-[11px]">
+      {n}
+    </Badge>
+  );
+}
+
+
 // ---------- Submissions ----------
 function SubmissionsTab() {
   const qc = useQueryClient();
@@ -114,7 +167,10 @@ function SubmissionsTab() {
     queryFn: () => fetchList({ data: { status: filter } }),
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin-submissions"] });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["admin-submissions"] });
+    qc.invalidateQueries({ queryKey: ["admin-review-counts"] });
+  };
 
   const approve = useMutation({
     mutationFn: (id: string) => approveFn({ data: { id } }),
@@ -217,7 +273,7 @@ function OffersTab() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-offers"], queryFn: () => fetchList() });
   const update = useMutation({
     mutationFn: (v: { id: string; status: string }) => updateFn({ data: v }),
-    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-offers"] }); },
+    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-offers"] }); qc.invalidateQueries({ queryKey: ["admin-review-counts"] }); },
   });
   const rows = data?.offers ?? [];
   if (isLoading) return <Empty>Loading…</Empty>;
@@ -259,7 +315,7 @@ function MessagesTab() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-messages"], queryFn: () => fetchList() });
   const update = useMutation({
     mutationFn: (v: { id: string; status: string }) => updateFn({ data: v }),
-    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-messages"] }); },
+    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-messages"] }); qc.invalidateQueries({ queryKey: ["admin-review-counts"] }); },
   });
   const rows = data?.messages ?? [];
   if (isLoading) return <Empty>Loading…</Empty>;

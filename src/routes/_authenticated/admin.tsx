@@ -167,7 +167,10 @@ function SubmissionsTab() {
     queryFn: () => fetchList({ data: { status: filter } }),
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin-submissions"] });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["admin-submissions"] });
+    qc.invalidateQueries({ queryKey: ["admin-review-counts"] });
+  };
 
   const approve = useMutation({
     mutationFn: (id: string) => approveFn({ data: { id } }),

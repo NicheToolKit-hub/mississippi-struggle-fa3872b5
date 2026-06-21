@@ -39,6 +39,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 function AdminPage() {
   const { isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const counts = useReviewCounts(isAdmin);
 
   async function handleSignOut() {
     await signOut();

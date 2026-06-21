@@ -25,6 +25,29 @@ async function signWith(sb: any, paths: (string | null | undefined)[]) {
   return map;
 }
 
+// ---------------- Notifications / counts ----------------
+
+/**
+ * Counts of newly submitted, not-yet-reviewed items across intake tables.
+ * Powers the live notification badges on the admin dashboard.
+ */
+export const getReviewCounts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const sb = context.supabase;
+    const [subs, offers, msgs] = await Promise.all([
+      sb.from("submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      sb.from("volunteer_offers").select("id", { count: "exact", head: true }).eq("status", "new"),
+      sb.from("contact_messages").select("id", { count: "exact", head: true }).eq("status", "new"),
+    ]);
+    return {
+      pendingSubmissions: subs.count ?? 0,
+      newOffers: offers.count ?? 0,
+      newMessages: msgs.count ?? 0,
+    };
+  });
+
 // ---------------- Reviews queue ----------------
 
 export const listSubmissions = createServerFn({ method: "GET" })

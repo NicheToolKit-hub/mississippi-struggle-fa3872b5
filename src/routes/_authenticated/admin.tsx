@@ -81,9 +81,15 @@ function AdminPage() {
 
       <Tabs defaultValue="pending" className="mt-8">
         <TabsList className="flex flex-wrap">
-          <TabsTrigger value="pending"><Inbox className="mr-1.5 h-4 w-4" /> Submissions</TabsTrigger>
-          <TabsTrigger value="offers"><Users className="mr-1.5 h-4 w-4" /> Offers</TabsTrigger>
-          <TabsTrigger value="messages"><Mail className="mr-1.5 h-4 w-4" /> Messages</TabsTrigger>
+          <TabsTrigger value="pending">
+            <Inbox className="mr-1.5 h-4 w-4" /> Submissions <CountBadge n={counts.pendingSubmissions} />
+          </TabsTrigger>
+          <TabsTrigger value="offers">
+            <Users className="mr-1.5 h-4 w-4" /> Offers <CountBadge n={counts.newOffers} />
+          </TabsTrigger>
+          <TabsTrigger value="messages">
+            <Mail className="mr-1.5 h-4 w-4" /> Messages <CountBadge n={counts.newMessages} />
+          </TabsTrigger>
           <TabsTrigger value="profiles"><Users className="mr-1.5 h-4 w-4" /> Profiles</TabsTrigger>
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
         </TabsList>

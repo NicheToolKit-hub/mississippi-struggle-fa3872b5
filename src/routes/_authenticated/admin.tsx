@@ -315,7 +315,7 @@ function MessagesTab() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-messages"], queryFn: () => fetchList() });
   const update = useMutation({
     mutationFn: (v: { id: string; status: string }) => updateFn({ data: v }),
-    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-messages"] }); },
+    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-messages"] }); qc.invalidateQueries({ queryKey: ["admin-review-counts"] }); },
   });
   const rows = data?.messages ?? [];
   if (isLoading) return <Empty>Loading…</Empty>;

@@ -108,6 +108,51 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{children}</p>;
 }
 
+type Counts = { pendingSubmissions: number; newOffers: number; newMessages: number };
+const EMPTY_COUNTS: Counts = { pendingSubmissions: 0, newOffers: 0, newMessages: 0 };
+
+/**
+ * Polls the unreviewed-item counts every 20s while an admin is viewing the
+ * dashboard, and raises a toast notification whenever the total grows — so
+ * new submissions surface without a manual refresh.
+ */
+function useReviewCounts(isAdmin: boolean): Counts {
+  const fetchCounts = useServerFn(getReviewCounts);
+  const { data } = useQuery({
+    queryKey: ["admin-review-counts"],
+    queryFn: () => fetchCounts(),
+    enabled: isAdmin,
+    refetchInterval: 20_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const counts = data ?? EMPTY_COUNTS;
+  const total = counts.pendingSubmissions + counts.newOffers + counts.newMessages;
+  const prevTotal = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prevTotal.current !== null && total > prevTotal.current) {
+      const diff = total - prevTotal.current;
+      toast.info(`${diff} new submission${diff === 1 ? "" : "s"} awaiting review`, {
+        icon: <Bell className="h-4 w-4" />,
+      });
+    }
+    prevTotal.current = total;
+  }, [total]);
+
+  return counts;
+}
+
+function CountBadge({ n }: { n: number }) {
+  if (!n) return null;
+  return (
+    <Badge variant="destructive" className="ml-1.5 h-5 min-w-5 justify-center px-1.5 text-[11px]">
+      {n}
+    </Badge>
+  );
+}
+
+
 // ---------- Submissions ----------
 function SubmissionsTab() {
   const qc = useQueryClient();

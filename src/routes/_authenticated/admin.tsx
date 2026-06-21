@@ -273,7 +273,7 @@ function OffersTab() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-offers"], queryFn: () => fetchList() });
   const update = useMutation({
     mutationFn: (v: { id: string; status: string }) => updateFn({ data: v }),
-    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-offers"] }); },
+    onSuccess: () => { toast.success("Updated."); qc.invalidateQueries({ queryKey: ["admin-offers"] }); qc.invalidateQueries({ queryKey: ["admin-review-counts"] }); },
   });
   const rows = data?.offers ?? [];
   if (isLoading) return <Empty>Loading…</Empty>;

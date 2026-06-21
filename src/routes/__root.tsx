@@ -95,6 +95,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Mississippi Struggle | Prison Reform Initiative" },
+      { name: "description", content: "Mississippi Justice Connect is a secure, accessible web platform for prison reform advocacy in Mississippi." },
+      { property: "og:description", content: "Mississippi Justice Connect is a secure, accessible web platform for prison reform advocacy in Mississippi." },
+      { name: "twitter:description", content: "Mississippi Justice Connect is a secure, accessible web platform for prison reform advocacy in Mississippi." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/aOUtb7kIpoc6aJBLTQSPCf7Rk0I2/social-images/social-1782018166471-a4d403b0-6b5b-11f1-85fc-df94253ce954.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/aOUtb7kIpoc6aJBLTQSPCf7Rk0I2/social-images/social-1782018166471-a4d403b0-6b5b-11f1-85fc-df94253ce954.webp" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

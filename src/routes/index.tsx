@@ -93,18 +93,15 @@ function HomePage() {
           style={{ background: "var(--gradient-hero)" }}
           aria-hidden="true"
         />
-        <div className="container-page flex min-h-[78vh] flex-col justify-center py-20 text-primary-foreground">
-          <p className="mb-4 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-gold">
-            <Megaphone className="h-4 w-4" aria-hidden="true" /> Justice cannot wait
-          </p>
-          <h1 className="max-w-3xl text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
-            Reform the system. Restore the people of Mississippi.
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-primary-foreground/85">
-            We are families, advocates, and returning citizens building a justice
-            system rooted in dignity, fairness, and second chances. Stand with us.
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "linear-gradient(to top, oklch(0.18 0.05 258 / 0.75) 0%, oklch(0.18 0.05 258 / 0.25) 40%, oklch(0.18 0.05 258 / 0) 70%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="container-page flex min-h-[78vh] flex-col justify-end pb-16 pt-20 text-primary-foreground">
             <Button asChild variant="donate" size="xl">
               <Link to="/petitions">
                 Sign the Petition <ArrowRight className="h-4 w-4" />

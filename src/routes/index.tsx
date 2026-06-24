@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, FileText, Scale, Users } from "lucide-react";
-import heroAsset from "@/assets/hero-lady-justice.png.asset.json";
+import heroImg from "@/assets/hero-lady-justice.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedCounter } from "@/components/animated-counter";

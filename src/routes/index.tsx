@@ -84,7 +84,7 @@ function HomePage() {
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <img
-          src={heroAsset.url}
+          src={heroImg}
           alt="Lady Justice — Mississippi Struggle"
           className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
         />

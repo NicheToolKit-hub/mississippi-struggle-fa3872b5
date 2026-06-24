@@ -90,11 +90,6 @@ function HomePage() {
         />
         <div
           className="absolute inset-0 -z-10"
-          style={{ background: "var(--gradient-hero)" }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0 -z-10"
           style={{
             background:
               "linear-gradient(to top, oklch(0.18 0.05 258 / 0.75) 0%, oklch(0.18 0.05 258 / 0.25) 40%, oklch(0.18 0.05 258 / 0) 70%)",

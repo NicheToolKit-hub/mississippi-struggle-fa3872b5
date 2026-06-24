@@ -102,6 +102,7 @@ function HomePage() {
           aria-hidden="true"
         />
         <div className="container-page flex min-h-[78vh] flex-col justify-end pb-16 pt-20 text-primary-foreground">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild variant="donate" size="xl">
               <Link to="/petitions">
                 Sign the Petition <ArrowRight className="h-4 w-4" />

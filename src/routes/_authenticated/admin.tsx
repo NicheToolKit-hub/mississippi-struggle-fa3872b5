@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell } from "lucide-react";
+import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell, FileStack, Pencil } from "lucide-react";
 import {
   getReviewCounts,
   listSubmissions,
@@ -21,6 +21,14 @@ import {
   createMediaPost,
   deleteMediaPost,
 } from "@/lib/admin.functions";
+import {
+  adminListContent,
+  adminApproveContent,
+  adminRejectContent,
+  adminUpdateContent,
+  adminDeleteContent,
+} from "@/lib/cms.functions";
+import { cmsTypeLabel, CMS_CATEGORIES } from "@/lib/cms";
 import { submissionTypeLabel, offerTypeLabel, MEDIA_KINDS } from "@/lib/media";
 import { useAuth } from "@/hooks/use-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

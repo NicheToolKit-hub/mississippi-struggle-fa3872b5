@@ -23,6 +23,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfilesIdRouteImport } from './routes/profiles.$id'
+import { Route as AuthenticatedContributeRouteImport } from './routes/_authenticated/contribute'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SubmitRoute = SubmitRouteImport.update({
@@ -94,6 +95,11 @@ const ProfilesIdRoute = ProfilesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ProfilesRoute,
 } as any)
+const AuthenticatedContributeRoute = AuthenticatedContributeRouteImport.update({
+  id: '/contribute',
+  path: '/contribute',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/contribute': typeof AuthenticatedContributeRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesByTo {
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/contribute': typeof AuthenticatedContributeRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesById {
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/contribute': typeof AuthenticatedContributeRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRouteTypes {
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/submit'
     | '/admin'
+    | '/contribute'
     | '/profiles/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/submit'
     | '/admin'
+    | '/contribute'
     | '/profiles/$id'
   id:
     | '__root__'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/submit'
     | '/_authenticated/admin'
+    | '/_authenticated/contribute'
     | '/profiles/$id'
   fileRoutesById: FileRoutesById
 }
@@ -318,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilesIdRouteImport
       parentRoute: typeof ProfilesRoute
     }
+    '/_authenticated/contribute': {
+      id: '/_authenticated/contribute'
+      path: '/contribute'
+      fullPath: '/contribute'
+      preLoaderRoute: typeof AuthenticatedContributeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -330,10 +349,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedContributeRoute: typeof AuthenticatedContributeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedContributeRoute: AuthenticatedContributeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -185,6 +185,14 @@ function ResourcesPage() {
             </a>
           </CardContent>
         </Card>
+
+        {/* Community-submitted, admin-approved resources */}
+        <CommunityContentSection
+          contentType="resource"
+          title="Community resources"
+          description="PDFs, links, and guides suggested by our supporters and approved by our team."
+          ctaLabel="Suggest a resource"
+        />
       </section>
     </>
   );

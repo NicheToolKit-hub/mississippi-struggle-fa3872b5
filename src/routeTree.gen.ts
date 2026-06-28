@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ProposalsRouteImport } from './routes/proposals'
 import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PetitionsRouteImport } from './routes/petitions'
@@ -39,6 +40,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProposalsRoute = ProposalsRouteImport.update({
+  id: '/proposals',
+  path: '/proposals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfilesRoute = ProfilesRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/profiles': typeof ProfilesRouteWithChildren
+  '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/profiles': typeof ProfilesRouteWithChildren
+  '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/profiles': typeof ProfilesRouteWithChildren
+  '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/petitions'
     | '/podcast'
     | '/profiles'
+    | '/proposals'
     | '/resources'
     | '/sitemap.xml'
     | '/submit'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/petitions'
     | '/podcast'
     | '/profiles'
+    | '/proposals'
     | '/resources'
     | '/sitemap.xml'
     | '/submit'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/petitions'
     | '/podcast'
     | '/profiles'
+    | '/proposals'
     | '/resources'
     | '/sitemap.xml'
     | '/submit'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   PetitionsRoute: typeof PetitionsRoute
   PodcastRoute: typeof PodcastRoute
   ProfilesRoute: typeof ProfilesRouteWithChildren
+  ProposalsRoute: typeof ProposalsRoute
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitRoute: typeof SubmitRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proposals': {
+      id: '/proposals'
+      path: '/proposals'
+      fullPath: '/proposals'
+      preLoaderRoute: typeof ProposalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profiles': {
@@ -383,6 +403,7 @@ const rootRouteChildren: RootRouteChildren = {
   PetitionsRoute: PetitionsRoute,
   PodcastRoute: PodcastRoute,
   ProfilesRoute: ProfilesRouteWithChildren,
+  ProposalsRoute: ProposalsRoute,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitRoute: SubmitRoute,

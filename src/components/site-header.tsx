@@ -100,6 +100,13 @@ export function SiteHeader() {
           >
             Submit Content
           </Link>
+          <Link
+            to="/contribute"
+            onClick={() => setOpen(false)}
+            className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            Contribute (Supporters)
+          </Link>
           <Button asChild variant="donate" className="mt-2">
             <Link to="/donate" onClick={() => setOpen(false)}>
               Donate Now

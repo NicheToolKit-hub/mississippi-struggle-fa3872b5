@@ -87,8 +87,11 @@ function AdminPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="pending" className="mt-8">
+      <Tabs defaultValue="content" className="mt-8">
         <TabsList className="flex flex-wrap">
+          <TabsTrigger value="content">
+            <FileStack className="mr-1.5 h-4 w-4" /> Content (CMS) <CountBadge n={counts.pendingContent} />
+          </TabsTrigger>
           <TabsTrigger value="pending">
             <Inbox className="mr-1.5 h-4 w-4" /> Submissions <CountBadge n={counts.pendingSubmissions} />
           </TabsTrigger>
@@ -102,6 +105,7 @@ function AdminPage() {
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="content" className="mt-6"><CmsContentTab /></TabsContent>
         <TabsContent value="pending" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="offers" className="mt-6"><OffersTab /></TabsContent>
         <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>

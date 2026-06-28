@@ -252,6 +252,14 @@ function BillsPage() {
             </div>
           )}
         </div>
+
+        {/* Community-submitted, admin-approved legislation */}
+        <CommunityContentSection
+          contentType="legislation"
+          title="Community-tracked legislation"
+          description="Bills, active laws, and policies suggested by our supporters and approved by our team."
+          ctaLabel="Suggest legislation"
+        />
       </section>
     </>
   );

@@ -10,6 +10,7 @@ const navLinks = [
   { to: "/", label: "Home" },
   { to: "/profiles", label: "Voices Inside" },
   { to: "/bills", label: "Bills & Laws" },
+  { to: "/proposals", label: "Proposals" },
   { to: "/education", label: "Education" },
   { to: "/petitions", label: "Petitions" },
   { to: "/resources", label: "Resources" },

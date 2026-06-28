@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { CommunityContentSection } from "@/components/community-content";
 
 export const Route = createFileRoute("/resources")({
   head: () => ({

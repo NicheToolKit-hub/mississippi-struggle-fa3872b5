@@ -120,8 +120,8 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{children}</p>;
 }
 
-type Counts = { pendingSubmissions: number; newOffers: number; newMessages: number };
-const EMPTY_COUNTS: Counts = { pendingSubmissions: 0, newOffers: 0, newMessages: 0 };
+type Counts = { pendingSubmissions: number; newOffers: number; newMessages: number; pendingContent: number };
+const EMPTY_COUNTS: Counts = { pendingSubmissions: 0, newOffers: 0, newMessages: 0, pendingContent: 0 };
 
 /**
  * Polls the unreviewed-item counts every 20s while an admin is viewing the
@@ -139,7 +139,7 @@ function useReviewCounts(isAdmin: boolean): Counts {
   });
 
   const counts = data ?? EMPTY_COUNTS;
-  const total = counts.pendingSubmissions + counts.newOffers + counts.newMessages;
+  const total = counts.pendingSubmissions + counts.newOffers + counts.newMessages + counts.pendingContent;
   const prevTotal = useRef<number | null>(null);
 
   useEffect(() => {

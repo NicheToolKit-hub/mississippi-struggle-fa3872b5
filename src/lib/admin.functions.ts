@@ -36,15 +36,17 @@ export const getReviewCounts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const sb = context.supabase;
-    const [subs, offers, msgs] = await Promise.all([
+    const [subs, offers, msgs, content] = await Promise.all([
       sb.from("submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
       sb.from("volunteer_offers").select("id", { count: "exact", head: true }).eq("status", "new"),
       sb.from("contact_messages").select("id", { count: "exact", head: true }).eq("status", "new"),
+      sb.from("cms_content").select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
     return {
       pendingSubmissions: subs.count ?? 0,
       newOffers: offers.count ?? 0,
       newMessages: msgs.count ?? 0,
+      pendingContent: content.count ?? 0,
     };
   });
 

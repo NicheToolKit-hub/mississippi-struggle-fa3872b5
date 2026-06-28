@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      cms_content: {
+        Row: {
+          attachment_url: string | null
+          category: string | null
+          content_type: Database["public"]["Enums"]["cms_content_type"]
+          created_at: string
+          description: string
+          external_url: string | null
+          id: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["cms_status"]
+          submitted_by: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          category?: string | null
+          content_type: Database["public"]["Enums"]["cms_content_type"]
+          created_at?: string
+          description: string
+          external_url?: string | null
+          id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["cms_status"]
+          submitted_by?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_url?: string | null
+          category?: string | null
+          content_type?: Database["public"]["Enums"]["cms_content_type"]
+          created_at?: string
+          description?: string
+          external_url?: string | null
+          id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["cms_status"]
+          submitted_by?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -310,6 +361,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      cms_content_type: "resource" | "legislation" | "proposal"
+      cms_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -438,6 +491,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      cms_content_type: ["resource", "legislation", "proposal"],
+      cms_status: ["pending", "approved", "rejected"],
     },
   },
 } as const

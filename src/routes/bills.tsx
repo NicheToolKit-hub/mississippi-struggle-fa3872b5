@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CommunityContentSection } from "@/components/community-content";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/bills")({
@@ -251,6 +252,14 @@ function BillsPage() {
             </div>
           )}
         </div>
+
+        {/* Community-submitted, admin-approved legislation */}
+        <CommunityContentSection
+          contentType="legislation"
+          title="Community-tracked legislation"
+          description="Bills, active laws, and policies suggested by our supporters and approved by our team."
+          ctaLabel="Suggest legislation"
+        />
       </section>
     </>
   );

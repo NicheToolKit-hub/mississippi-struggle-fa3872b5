@@ -10,6 +10,7 @@ const navLinks = [
   { to: "/", label: "Home" },
   { to: "/profiles", label: "Voices Inside" },
   { to: "/bills", label: "Bills & Laws" },
+  { to: "/proposals", label: "Proposals" },
   { to: "/education", label: "Education" },
   { to: "/petitions", label: "Petitions" },
   { to: "/resources", label: "Resources" },
@@ -98,6 +99,13 @@ export function SiteHeader() {
             className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             Submit Content
+          </Link>
+          <Link
+            to="/contribute"
+            onClick={() => setOpen(false)}
+            className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            Contribute (Supporters)
           </Link>
           <Button asChild variant="donate" className="mt-2">
             <Link to="/donate" onClick={() => setOpen(false)}>

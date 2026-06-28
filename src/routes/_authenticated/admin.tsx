@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell } from "lucide-react";
+import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell, FileStack, Pencil } from "lucide-react";
 import {
   getReviewCounts,
   listSubmissions,
@@ -21,6 +21,14 @@ import {
   createMediaPost,
   deleteMediaPost,
 } from "@/lib/admin.functions";
+import {
+  adminListContent,
+  adminApproveContent,
+  adminRejectContent,
+  adminUpdateContent,
+  adminDeleteContent,
+} from "@/lib/cms.functions";
+import { cmsTypeLabel, CMS_CATEGORIES } from "@/lib/cms";
 import { submissionTypeLabel, offerTypeLabel, MEDIA_KINDS } from "@/lib/media";
 import { useAuth } from "@/hooks/use-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -79,8 +87,11 @@ function AdminPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="pending" className="mt-8">
+      <Tabs defaultValue="content" className="mt-8">
         <TabsList className="flex flex-wrap">
+          <TabsTrigger value="content">
+            <FileStack className="mr-1.5 h-4 w-4" /> Content (CMS) <CountBadge n={counts.pendingContent} />
+          </TabsTrigger>
           <TabsTrigger value="pending">
             <Inbox className="mr-1.5 h-4 w-4" /> Submissions <CountBadge n={counts.pendingSubmissions} />
           </TabsTrigger>
@@ -94,6 +105,7 @@ function AdminPage() {
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="content" className="mt-6"><CmsContentTab /></TabsContent>
         <TabsContent value="pending" className="mt-6"><SubmissionsTab /></TabsContent>
         <TabsContent value="offers" className="mt-6"><OffersTab /></TabsContent>
         <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
@@ -108,8 +120,8 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{children}</p>;
 }
 
-type Counts = { pendingSubmissions: number; newOffers: number; newMessages: number };
-const EMPTY_COUNTS: Counts = { pendingSubmissions: 0, newOffers: 0, newMessages: 0 };
+type Counts = { pendingSubmissions: number; newOffers: number; newMessages: number; pendingContent: number };
+const EMPTY_COUNTS: Counts = { pendingSubmissions: 0, newOffers: 0, newMessages: 0, pendingContent: 0 };
 
 /**
  * Polls the unreviewed-item counts every 20s while an admin is viewing the
@@ -127,7 +139,7 @@ function useReviewCounts(isAdmin: boolean): Counts {
   });
 
   const counts = data ?? EMPTY_COUNTS;
-  const total = counts.pendingSubmissions + counts.newOffers + counts.newMessages;
+  const total = counts.pendingSubmissions + counts.newOffers + counts.newMessages + counts.pendingContent;
   const prevTotal = useRef<number | null>(null);
 
   useEffect(() => {
@@ -153,7 +165,211 @@ function CountBadge({ n }: { n: number }) {
 }
 
 
-// ---------- Submissions ----------
+// ---------- Content (CMS) ----------
+/**
+ * Review queue for supporter-submitted CMS content (Resources, Legislation,
+ * Community Proposals). Admins can approve, edit, reject, or delete each item.
+ */
+function CmsContentTab() {
+  const qc = useQueryClient();
+  const fetchList = useServerFn(adminListContent);
+  const approveFn = useServerFn(adminApproveContent);
+  const rejectFn = useServerFn(adminRejectContent);
+  const updateFn = useServerFn(adminUpdateContent);
+  const deleteFn = useServerFn(adminDeleteContent);
+
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected">("pending");
+  const [editing, setEditing] = useState<any | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-content", filter],
+    queryFn: () => fetchList({ data: { status: filter } }),
+  });
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["admin-content"] });
+    qc.invalidateQueries({ queryKey: ["admin-review-counts"] });
+    qc.invalidateQueries({ queryKey: ["public-content"] });
+  };
+
+  const approve = useMutation({
+    mutationFn: (id: string) => approveFn({ data: { id } }),
+    onSuccess: () => { toast.success("Approved — now live on the public page."); invalidate(); },
+    onError: () => toast.error("Could not approve."),
+  });
+  const reject = useMutation({
+    mutationFn: (id: string) => rejectFn({ data: { id } }),
+    onSuccess: () => { toast.success("Rejected."); invalidate(); },
+    onError: () => toast.error("Could not reject."),
+  });
+  const remove = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => { toast.success("Deleted."); invalidate(); },
+  });
+  const save = useMutation({
+    mutationFn: (v: any) => updateFn({ data: v }),
+    onSuccess: () => { toast.success("Changes saved."); setEditing(null); invalidate(); },
+    onError: () => toast.error("Could not save. Check that links are valid URLs."),
+  });
+
+  const rows = data?.items ?? [];
+
+  return (
+    <div>
+      <div className="mb-4 flex gap-2">
+        {(["pending", "approved", "rejected"] as const).map((s) => (
+          <Button key={s} size="sm" variant={filter === s ? "default" : "outline"} onClick={() => setFilter(s)}>
+            {s[0].toUpperCase() + s.slice(1)}
+          </Button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <Empty>Loading…</Empty>
+      ) : rows.length === 0 ? (
+        <Empty>No {filter} content.</Empty>
+      ) : (
+        <div className="space-y-4">
+          {rows.map((c: any) => (
+            <Card key={c.id} className="shadow-[var(--shadow-card)]">
+              <CardContent className="p-5">
+                {editing?.id === c.id ? (
+                  <CmsEditForm
+                    item={editing}
+                    busy={save.isPending}
+                    onCancel={() => setEditing(null)}
+                    onSave={(v) => save.mutate({ id: c.id, ...v })}
+                  />
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="secondary">{cmsTypeLabel(c.contentType)}</Badge>
+                          {c.category && <Badge variant="outline">{c.category}</Badge>}
+                        </div>
+                        <h3 className="mt-2 text-lg font-semibold">{c.title}</h3>
+                      </div>
+                      <time className="text-xs text-muted-foreground">{new Date(c.createdAt).toLocaleDateString()}</time>
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed">{c.description}</p>
+                    <div className="mt-2 flex flex-wrap gap-4">
+                      {c.externalUrl && (
+                        <a href={c.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:text-gold">
+                          <ExternalLink className="h-3.5 w-3.5" /> External link
+                        </a>
+                      )}
+                      {c.attachmentUrl && (
+                        <a href={c.attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:text-gold">
+                          <ExternalLink className="h-3.5 w-3.5" /> Attachment
+                        </a>
+                      )}
+                    </div>
+                    {c.reviewNote && <p className="mt-2 text-xs text-crimson">Note: {c.reviewNote}</p>}
+
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      {c.status !== "approved" && (
+                        <Button size="sm" onClick={() => approve.mutate(c.id)} disabled={approve.isPending}>
+                          <Check className="h-4 w-4" /> Approve
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => setEditing(c)}>
+                        <Pencil className="h-4 w-4" /> Edit
+                      </Button>
+                      {c.status !== "rejected" && (
+                        <Button size="sm" variant="outline" onClick={() => reject.mutate(c.id)} disabled={reject.isPending}>
+                          <X className="h-4 w-4" /> Reject
+                        </Button>
+                      )}
+                      <Button size="sm" variant="ghost" onClick={() => remove.mutate(c.id)}>
+                        <Trash2 className="h-4 w-4" /> Delete
+                      </Button>
+                      {c.status !== "pending" && (
+                        <Badge variant={c.status === "approved" ? "default" : "destructive"} className="ml-auto">
+                          {c.status}
+                        </Badge>
+                      )}
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CmsEditForm({
+  item,
+  busy,
+  onSave,
+  onCancel,
+}: {
+  item: any;
+  busy: boolean;
+  onSave: (v: { title: string; description: string; category: string; externalUrl: string; attachmentUrl: string }) => void;
+  onCancel: () => void;
+}) {
+  const [title, setTitle] = useState(item.title ?? "");
+  const [description, setDescription] = useState(item.description ?? "");
+  const [category, setCategory] = useState(item.category ?? "");
+  const [externalUrl, setExternalUrl] = useState(item.externalUrl ?? "");
+  const [attachmentUrl, setAttachmentUrl] = useState(item.attachmentUrl ?? "");
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave({ title, description, category, externalUrl, attachmentUrl });
+      }}
+      className="space-y-4"
+    >
+      <Badge variant="secondary">{cmsTypeLabel(item.contentType)} · editing</Badge>
+      <div>
+        <Label htmlFor={`t-${item.id}`}>Title</Label>
+        <Input id={`t-${item.id}`} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={160} className="mt-1.5" />
+      </div>
+      <div>
+        <Label htmlFor={`cat-${item.id}`}>Category</Label>
+        <select
+          id={`cat-${item.id}`}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="mt-1.5 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="">— None —</option>
+          {CMS_CATEGORIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <Label htmlFor={`d-${item.id}`}>Description</Label>
+        <Textarea id={`d-${item.id}`} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={5000} className="mt-1.5" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor={`ex-${item.id}`}>External link</Label>
+          <Input id={`ex-${item.id}`} type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} className="mt-1.5" placeholder="https://…" />
+        </div>
+        <div>
+          <Label htmlFor={`at-${item.id}`}>Attachment link</Label>
+          <Input id={`at-${item.id}`} type="url" value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="mt-1.5" placeholder="https://…" />
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button type="submit" size="sm" disabled={busy}>
+          {busy ? "Saving…" : "Save changes"}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onCancel}>Cancel</Button>
+      </div>
+    </form>
+  );
+}
+
+
 function SubmissionsTab() {
   const qc = useQueryClient();
   const fetchList = useServerFn(listSubmissions);

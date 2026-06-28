@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ProposalsRouteImport } from './routes/proposals'
 import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PetitionsRouteImport } from './routes/petitions'
@@ -23,6 +24,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfilesIdRouteImport } from './routes/profiles.$id'
+import { Route as AuthenticatedContributeRouteImport } from './routes/_authenticated/contribute'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SubmitRoute = SubmitRouteImport.update({
@@ -38,6 +40,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProposalsRoute = ProposalsRouteImport.update({
+  id: '/proposals',
+  path: '/proposals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfilesRoute = ProfilesRouteImport.update({
@@ -94,6 +101,11 @@ const ProfilesIdRoute = ProfilesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ProfilesRoute,
 } as any)
+const AuthenticatedContributeRoute = AuthenticatedContributeRouteImport.update({
+  id: '/contribute',
+  path: '/contribute',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -110,10 +122,12 @@ export interface FileRoutesByFullPath {
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/profiles': typeof ProfilesRouteWithChildren
+  '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/contribute': typeof AuthenticatedContributeRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesByTo {
@@ -126,10 +140,12 @@ export interface FileRoutesByTo {
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/profiles': typeof ProfilesRouteWithChildren
+  '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/contribute': typeof AuthenticatedContributeRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRoutesById {
@@ -144,10 +160,12 @@ export interface FileRoutesById {
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/profiles': typeof ProfilesRouteWithChildren
+  '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/contribute': typeof AuthenticatedContributeRoute
   '/profiles/$id': typeof ProfilesIdRoute
 }
 export interface FileRouteTypes {
@@ -162,10 +180,12 @@ export interface FileRouteTypes {
     | '/petitions'
     | '/podcast'
     | '/profiles'
+    | '/proposals'
     | '/resources'
     | '/sitemap.xml'
     | '/submit'
     | '/admin'
+    | '/contribute'
     | '/profiles/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -178,10 +198,12 @@ export interface FileRouteTypes {
     | '/petitions'
     | '/podcast'
     | '/profiles'
+    | '/proposals'
     | '/resources'
     | '/sitemap.xml'
     | '/submit'
     | '/admin'
+    | '/contribute'
     | '/profiles/$id'
   id:
     | '__root__'
@@ -195,10 +217,12 @@ export interface FileRouteTypes {
     | '/petitions'
     | '/podcast'
     | '/profiles'
+    | '/proposals'
     | '/resources'
     | '/sitemap.xml'
     | '/submit'
     | '/_authenticated/admin'
+    | '/_authenticated/contribute'
     | '/profiles/$id'
   fileRoutesById: FileRoutesById
 }
@@ -213,6 +237,7 @@ export interface RootRouteChildren {
   PetitionsRoute: typeof PetitionsRoute
   PodcastRoute: typeof PodcastRoute
   ProfilesRoute: typeof ProfilesRouteWithChildren
+  ProposalsRoute: typeof ProposalsRoute
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitRoute: typeof SubmitRoute
@@ -239,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proposals': {
+      id: '/proposals'
+      path: '/proposals'
+      fullPath: '/proposals'
+      preLoaderRoute: typeof ProposalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profiles': {
@@ -318,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilesIdRouteImport
       parentRoute: typeof ProfilesRoute
     }
+    '/_authenticated/contribute': {
+      id: '/_authenticated/contribute'
+      path: '/contribute'
+      fullPath: '/contribute'
+      preLoaderRoute: typeof AuthenticatedContributeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -330,10 +369,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedContributeRoute: typeof AuthenticatedContributeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedContributeRoute: AuthenticatedContributeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -362,6 +403,7 @@ const rootRouteChildren: RootRouteChildren = {
   PetitionsRoute: PetitionsRoute,
   PodcastRoute: PodcastRoute,
   ProfilesRoute: ProfilesRouteWithChildren,
+  ProposalsRoute: ProposalsRoute,
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitRoute: SubmitRoute,
@@ -369,13 +411,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

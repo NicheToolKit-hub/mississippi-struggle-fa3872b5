@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { CommunityContentSection } from "@/components/community-content";
 
 export const Route = createFileRoute("/resources")({
   head: () => ({
@@ -184,6 +185,14 @@ function ResourcesPage() {
             </a>
           </CardContent>
         </Card>
+
+        {/* Community-submitted, admin-approved resources */}
+        <CommunityContentSection
+          contentType="resource"
+          title="Community resources"
+          description="PDFs, links, and guides suggested by our supporters and approved by our team."
+          ctaLabel="Suggest a resource"
+        />
       </section>
     </>
   );

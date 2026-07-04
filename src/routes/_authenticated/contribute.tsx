@@ -53,32 +53,55 @@ function ContributePage() {
   const [category, setCategory] = useState<string>(CMS_CATEGORIES[0]);
   const [externalUrl, setExternalUrl] = useState("");
   const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
   const mine = useQuery({ queryKey: ["my-content"], queryFn: () => listFn() });
 
   const submit = useMutation({
-    mutationFn: () =>
-      submitFn({
+    mutationFn: async () => {
+      // If the supporter attached a PDF/document, upload it first and store the
+      // resulting private storage path in attachment_url (signed on read).
+      let attachment = attachmentUrl || null;
+      if (attachmentFile) {
+        attachment = await uploadSubmissionFile(attachmentFile, "cms");
+      }
+      return submitFn({
         data: {
           contentType: contentType as "resource" | "legislation" | "proposal",
           title,
           description,
           category: category || null,
           externalUrl: externalUrl || null,
-          attachmentUrl: attachmentUrl || null,
+          attachmentUrl: attachment,
         },
-      }),
+      });
+    },
     onSuccess: () => {
       setDone(true);
       setTitle("");
       setDescription("");
       setExternalUrl("");
       setAttachmentUrl("");
+      setAttachmentFile(null);
+      setFileError(null);
       qc.invalidateQueries({ queryKey: ["my-content"] });
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
   });
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setFileError(null);
+    const f = e.target.files?.[0] ?? null;
+    if (f && f.size > 20 * 1024 * 1024) {
+      setFileError("File is too large (max 20MB).");
+      e.target.value = "";
+      return;
+    }
+    setAttachmentFile(f);
+  }
+
 
   async function handleSignOut() {
     await signOut();

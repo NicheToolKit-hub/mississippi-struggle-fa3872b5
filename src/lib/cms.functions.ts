@@ -150,7 +150,7 @@ export const listMyContent = createServerFn({ method: "GET" })
       .select("*")
       .eq("submitted_by", context.userId)
       .order("created_at", { ascending: false });
-    return { items: (data ?? []).map(mapRow) };
+    return { items: await signAttachments((data ?? []).map(mapRow)) };
   });
 
 // ---------------- Admin queue ----------------

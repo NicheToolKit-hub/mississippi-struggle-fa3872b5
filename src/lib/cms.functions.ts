@@ -105,7 +105,7 @@ export const listPublicContent = createServerFn({ method: "GET" })
     if (data.contentType) q = q.eq("content_type", data.contentType);
     const { data: rows, error } = await q;
     if (error || !rows) return { items: [] };
-    return { items: rows.map(mapRow) };
+    return { items: await signAttachments(rows.map(mapRow)) };
   });
 
 // ---------------- Supporter writes ----------------

@@ -174,7 +174,7 @@ export const adminListContent = createServerFn({ method: "GET" })
     if (data.status) q = q.eq("status", data.status);
     if (data.contentType) q = q.eq("content_type", data.contentType);
     const { data: rows } = await q;
-    return { items: (rows ?? []).map(mapRow) };
+    return { items: await signAttachments((rows ?? []).map(mapRow)) };
   });
 
 /** Count of pending CMS items — feeds the admin notification badge. */

@@ -239,12 +239,56 @@ function ContributePage() {
                     type="url"
                     value={attachmentUrl}
                     onChange={(e) => setAttachmentUrl(e.target.value)}
+                    disabled={!!attachmentFile}
                     maxLength={500}
                     className="mt-1.5"
-                    placeholder="https://… (link to a PDF or document)"
+                    placeholder="https://… (or upload a file below)"
                   />
                 </div>
               </div>
+
+              <div>
+                <Label htmlFor="attachment-file">Upload a PDF or document (optional)</Label>
+                {attachmentFile ? (
+                  <div className="mt-1.5 flex items-center justify-between gap-3 rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <FileText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <span className="truncate">{attachmentFile.name}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAttachmentFile(null)}
+                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-crimson"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" /> Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="attachment-file"
+                    className="mt-1.5 flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-input bg-background px-3 py-2.5 text-sm text-muted-foreground hover:border-gold hover:text-foreground"
+                  >
+                    <Upload className="h-4 w-4" aria-hidden="true" />
+                    Choose a PDF or document (max 20MB)
+                  </label>
+                )}
+                <input
+                  id="attachment-file"
+                  type="file"
+                  accept="application/pdf,.pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="sr-only"
+                />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Uploaded files are stored securely and reviewed before publishing.
+                </p>
+                {fileError && (
+                  <p role="alert" className="mt-1.5 text-sm text-crimson">
+                    {fileError}
+                  </p>
+                )}
+              </div>
+
 
               {submit.isError && (
                 <p role="alert" className="text-sm text-crimson">

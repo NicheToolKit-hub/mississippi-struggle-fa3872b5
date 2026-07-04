@@ -116,7 +116,7 @@ const submitSchema = z.object({
   description: z.string().trim().min(5).max(5000),
   category: z.string().trim().max(80).optional().nullable(),
   externalUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
-  attachmentUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
+  attachmentUrl: z.string().trim().max(500).optional().nullable().or(z.literal("")),
 });
 
 /**

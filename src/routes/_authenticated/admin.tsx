@@ -259,9 +259,9 @@ function CmsContentTab() {
                           <ExternalLink className="h-3.5 w-3.5" /> External link
                         </a>
                       )}
-                      {c.attachmentUrl && (
-                        <a href={c.attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:text-gold">
-                          <ExternalLink className="h-3.5 w-3.5" /> Attachment
+                      {(c.attachmentSignedUrl || c.attachmentUrl) && (
+                        <a href={c.attachmentSignedUrl || c.attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:text-gold">
+                          <ExternalLink className="h-3.5 w-3.5" /> {c.attachmentIsFile ? "Uploaded file" : "Attachment"}
                         </a>
                       )}
                     </div>

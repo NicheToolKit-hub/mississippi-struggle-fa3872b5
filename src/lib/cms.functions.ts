@@ -33,32 +33,57 @@ function isStoragePath(v?: string | null): v is string {
   return !!v && !/^https?:\/\//i.test(v);
 }
 
-/**
- * Replace uploaded-attachment storage paths with temporary signed URLs so the
- * private PDF/document can be opened. External http(s) links pass through
- * unchanged.
- */
-async function signAttachments<T extends { attachmentUrl: string | null }>(
-  items: T[],
-): Promise<T[]> {
-  const paths = Array.from(
-    new Set(items.map((i) => i.attachmentUrl).filter(isStoragePath)),
-  );
-  if (paths.length === 0) return items;
+/** Build a map of storage-object-path → temporary signed URL. */
+async function signPathMap(
+  paths: (string | null | undefined)[],
+): Promise<Record<string, string>> {
+  const clean = Array.from(new Set(paths.filter(isStoragePath)));
+  if (clean.length === 0) return {};
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin.storage
     .from(BUCKET)
-    .createSignedUrls(paths, SIGNED_TTL);
+    .createSignedUrls(clean, SIGNED_TTL);
   const map: Record<string, string> = {};
   (data ?? []).forEach((d: any) => {
     if (d.path && d.signedUrl) map[d.path] = d.signedUrl;
   });
+  return map;
+}
+
+/**
+ * Replace uploaded-attachment storage paths with temporary signed URLs so the
+ * private PDF/document can be opened. External http(s) links pass through
+ * unchanged. Used for public and supporter-facing reads.
+ */
+async function signAttachments<T extends { attachmentUrl: string | null }>(
+  items: T[],
+): Promise<T[]> {
+  const map = await signPathMap(items.map((i) => i.attachmentUrl));
   return items.map((i) =>
     isStoragePath(i.attachmentUrl)
       ? { ...i, attachmentUrl: map[i.attachmentUrl] ?? null }
       : i,
   );
 }
+
+/**
+ * Admin read variant: keeps the raw `attachmentUrl` (path or link) intact so
+ * edits never persist a temporary signed URL, and adds `attachmentSignedUrl`
+ * plus `attachmentIsFile` for display.
+ */
+async function withAdminAttachments<T extends { attachmentUrl: string | null }>(
+  items: T[],
+): Promise<(T & { attachmentSignedUrl: string | null; attachmentIsFile: boolean })[]> {
+  const map = await signPathMap(items.map((i) => i.attachmentUrl));
+  return items.map((i) => ({
+    ...i,
+    attachmentIsFile: isStoragePath(i.attachmentUrl),
+    attachmentSignedUrl: isStoragePath(i.attachmentUrl)
+      ? map[i.attachmentUrl] ?? null
+      : i.attachmentUrl,
+  }));
+}
+
 
 /** Throws unless the calling user holds the admin role. */
 async function assertAdmin(context: { supabase: any; userId: string }) {

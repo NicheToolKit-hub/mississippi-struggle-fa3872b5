@@ -356,7 +356,18 @@ function CmsEditForm({
         </div>
         <div>
           <Label htmlFor={`at-${item.id}`}>Attachment link</Label>
-          <Input id={`at-${item.id}`} type="url" value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="mt-1.5" placeholder="https://…" />
+          {item.attachmentIsFile ? (
+            <div className="mt-1.5 flex items-center justify-between gap-2 rounded-md border border-input bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              <span className="truncate">Uploaded file (kept as-is)</span>
+              {item.attachmentSignedUrl && (
+                <a href={item.attachmentSignedUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 text-primary hover:text-gold">
+                  View
+                </a>
+              )}
+            </div>
+          ) : (
+            <Input id={`at-${item.id}`} type="url" value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="mt-1.5" placeholder="https://…" />
+          )}
         </div>
       </div>
       <div className="flex gap-2">

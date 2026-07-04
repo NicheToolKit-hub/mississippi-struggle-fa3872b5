@@ -25,6 +25,66 @@ function publicClient() {
   );
 }
 
+const BUCKET = "submission-uploads";
+const SIGNED_TTL = 60 * 60 * 24 * 7; // 7 days
+
+/** True when the value is a private storage object path rather than an http(s) link. */
+function isStoragePath(v?: string | null): v is string {
+  return !!v && !/^https?:\/\//i.test(v);
+}
+
+/** Build a map of storage-object-path → temporary signed URL. */
+async function signPathMap(
+  paths: (string | null | undefined)[],
+): Promise<Record<string, string>> {
+  const clean = Array.from(new Set(paths.filter(isStoragePath)));
+  if (clean.length === 0) return {};
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage
+    .from(BUCKET)
+    .createSignedUrls(clean, SIGNED_TTL);
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((d: any) => {
+    if (d.path && d.signedUrl) map[d.path] = d.signedUrl;
+  });
+  return map;
+}
+
+/**
+ * Replace uploaded-attachment storage paths with temporary signed URLs so the
+ * private PDF/document can be opened. External http(s) links pass through
+ * unchanged. Used for public and supporter-facing reads.
+ */
+async function signAttachments<T extends { attachmentUrl: string | null }>(
+  items: T[],
+): Promise<T[]> {
+  const map = await signPathMap(items.map((i) => i.attachmentUrl));
+  return items.map((i) =>
+    isStoragePath(i.attachmentUrl)
+      ? { ...i, attachmentUrl: map[i.attachmentUrl] ?? null }
+      : i,
+  );
+}
+
+/**
+ * Admin read variant: keeps the raw `attachmentUrl` (path or link) intact so
+ * edits never persist a temporary signed URL, and adds `attachmentSignedUrl`
+ * plus `attachmentIsFile` for display.
+ */
+async function withAdminAttachments<T extends { attachmentUrl: string | null }>(
+  items: T[],
+): Promise<(T & { attachmentSignedUrl: string | null; attachmentIsFile: boolean })[]> {
+  const map = await signPathMap(items.map((i) => i.attachmentUrl));
+  return items.map((i) => ({
+    ...i,
+    attachmentIsFile: isStoragePath(i.attachmentUrl),
+    attachmentSignedUrl: isStoragePath(i.attachmentUrl)
+      ? map[i.attachmentUrl] ?? null
+      : i.attachmentUrl,
+  }));
+}
+
+
 /** Throws unless the calling user holds the admin role. */
 async function assertAdmin(context: { supabase: any; userId: string }) {
   const { data, error } = await context.supabase.rpc("has_role", {
@@ -70,7 +130,7 @@ export const listPublicContent = createServerFn({ method: "GET" })
     if (data.contentType) q = q.eq("content_type", data.contentType);
     const { data: rows, error } = await q;
     if (error || !rows) return { items: [] };
-    return { items: rows.map(mapRow) };
+    return { items: await signAttachments(rows.map(mapRow)) };
   });
 
 // ---------------- Supporter writes ----------------
@@ -81,7 +141,7 @@ const submitSchema = z.object({
   description: z.string().trim().min(5).max(5000),
   category: z.string().trim().max(80).optional().nullable(),
   externalUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
-  attachmentUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
+  attachmentUrl: z.string().trim().max(500).optional().nullable().or(z.literal("")),
 });
 
 /**
@@ -115,7 +175,7 @@ export const listMyContent = createServerFn({ method: "GET" })
       .select("*")
       .eq("submitted_by", context.userId)
       .order("created_at", { ascending: false });
-    return { items: (data ?? []).map(mapRow) };
+    return { items: await signAttachments((data ?? []).map(mapRow)) };
   });
 
 // ---------------- Admin queue ----------------
@@ -139,7 +199,7 @@ export const adminListContent = createServerFn({ method: "GET" })
     if (data.status) q = q.eq("status", data.status);
     if (data.contentType) q = q.eq("content_type", data.contentType);
     const { data: rows } = await q;
-    return { items: (rows ?? []).map(mapRow) };
+    return { items: await withAdminAttachments((rows ?? []).map(mapRow)) };
   });
 
 /** Count of pending CMS items — feeds the admin notification badge. */
@@ -198,7 +258,7 @@ const editSchema = z.object({
   description: z.string().trim().min(5).max(5000),
   category: z.string().trim().max(80).optional().nullable().or(z.literal("")),
   externalUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
-  attachmentUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
+  attachmentUrl: z.string().trim().max(500).optional().nullable().or(z.literal("")),
 });
 
 /** Admin edit — correct typos / update info (e.g. before approving). */

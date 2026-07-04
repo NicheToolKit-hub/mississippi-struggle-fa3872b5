@@ -2,8 +2,9 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ShieldCheck, LogOut, FileText, Landmark, Lightbulb } from "lucide-react";
+import { CheckCircle2, ShieldCheck, LogOut, FileText, Landmark, Lightbulb, Upload, X } from "lucide-react";
 import { submitCmsContent, listMyContent } from "@/lib/cms.functions";
+import { uploadSubmissionFile } from "@/lib/upload";
 import { CMS_CONTENT_TYPES, CMS_CATEGORIES, cmsTypeLabel } from "@/lib/cms";
 import { useAuth } from "@/hooks/use-auth";
 import { PageHeader } from "@/components/page-header";
@@ -52,32 +53,55 @@ function ContributePage() {
   const [category, setCategory] = useState<string>(CMS_CATEGORIES[0]);
   const [externalUrl, setExternalUrl] = useState("");
   const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
   const mine = useQuery({ queryKey: ["my-content"], queryFn: () => listFn() });
 
   const submit = useMutation({
-    mutationFn: () =>
-      submitFn({
+    mutationFn: async () => {
+      // If the supporter attached a PDF/document, upload it first and store the
+      // resulting private storage path in attachment_url (signed on read).
+      let attachment = attachmentUrl || null;
+      if (attachmentFile) {
+        attachment = await uploadSubmissionFile(attachmentFile, "cms");
+      }
+      return submitFn({
         data: {
           contentType: contentType as "resource" | "legislation" | "proposal",
           title,
           description,
           category: category || null,
           externalUrl: externalUrl || null,
-          attachmentUrl: attachmentUrl || null,
+          attachmentUrl: attachment,
         },
-      }),
+      });
+    },
     onSuccess: () => {
       setDone(true);
       setTitle("");
       setDescription("");
       setExternalUrl("");
       setAttachmentUrl("");
+      setAttachmentFile(null);
+      setFileError(null);
       qc.invalidateQueries({ queryKey: ["my-content"] });
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
   });
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setFileError(null);
+    const f = e.target.files?.[0] ?? null;
+    if (f && f.size > 20 * 1024 * 1024) {
+      setFileError("File is too large (max 20MB).");
+      e.target.value = "";
+      return;
+    }
+    setAttachmentFile(f);
+  }
+
 
   async function handleSignOut() {
     await signOut();
@@ -215,12 +239,56 @@ function ContributePage() {
                     type="url"
                     value={attachmentUrl}
                     onChange={(e) => setAttachmentUrl(e.target.value)}
+                    disabled={!!attachmentFile}
                     maxLength={500}
                     className="mt-1.5"
-                    placeholder="https://… (link to a PDF or document)"
+                    placeholder="https://… (or upload a file below)"
                   />
                 </div>
               </div>
+
+              <div>
+                <Label htmlFor="attachment-file">Upload a PDF or document (optional)</Label>
+                {attachmentFile ? (
+                  <div className="mt-1.5 flex items-center justify-between gap-3 rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <FileText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <span className="truncate">{attachmentFile.name}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAttachmentFile(null)}
+                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-crimson"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" /> Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="attachment-file"
+                    className="mt-1.5 flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-input bg-background px-3 py-2.5 text-sm text-muted-foreground hover:border-gold hover:text-foreground"
+                  >
+                    <Upload className="h-4 w-4" aria-hidden="true" />
+                    Choose a PDF or document (max 20MB)
+                  </label>
+                )}
+                <input
+                  id="attachment-file"
+                  type="file"
+                  accept="application/pdf,.pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="sr-only"
+                />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Uploaded files are stored securely and reviewed before publishing.
+                </p>
+                {fileError && (
+                  <p role="alert" className="mt-1.5 text-sm text-crimson">
+                    {fileError}
+                  </p>
+                )}
+              </div>
+
 
               {submit.isError && (
                 <p role="alert" className="text-sm text-crimson">

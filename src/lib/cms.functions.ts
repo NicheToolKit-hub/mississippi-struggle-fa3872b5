@@ -233,7 +233,7 @@ const editSchema = z.object({
   description: z.string().trim().min(5).max(5000),
   category: z.string().trim().max(80).optional().nullable().or(z.literal("")),
   externalUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
-  attachmentUrl: z.string().trim().url().max(500).optional().nullable().or(z.literal("")),
+  attachmentUrl: z.string().trim().max(500).optional().nullable().or(z.literal("")),
 });
 
 /** Admin edit — correct typos / update info (e.g. before approving). */

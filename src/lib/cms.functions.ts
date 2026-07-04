@@ -25,6 +25,41 @@ function publicClient() {
   );
 }
 
+const BUCKET = "submission-uploads";
+const SIGNED_TTL = 60 * 60 * 24 * 7; // 7 days
+
+/** True when the value is a private storage object path rather than an http(s) link. */
+function isStoragePath(v?: string | null): v is string {
+  return !!v && !/^https?:\/\//i.test(v);
+}
+
+/**
+ * Replace uploaded-attachment storage paths with temporary signed URLs so the
+ * private PDF/document can be opened. External http(s) links pass through
+ * unchanged.
+ */
+async function signAttachments<T extends { attachmentUrl: string | null }>(
+  items: T[],
+): Promise<T[]> {
+  const paths = Array.from(
+    new Set(items.map((i) => i.attachmentUrl).filter(isStoragePath)),
+  );
+  if (paths.length === 0) return items;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage
+    .from(BUCKET)
+    .createSignedUrls(paths, SIGNED_TTL);
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((d: any) => {
+    if (d.path && d.signedUrl) map[d.path] = d.signedUrl;
+  });
+  return items.map((i) =>
+    isStoragePath(i.attachmentUrl)
+      ? { ...i, attachmentUrl: map[i.attachmentUrl] ?? null }
+      : i,
+  );
+}
+
 /** Throws unless the calling user holds the admin role. */
 async function assertAdmin(context: { supabase: any; userId: string }) {
   const { data, error } = await context.supabase.rpc("has_role", {

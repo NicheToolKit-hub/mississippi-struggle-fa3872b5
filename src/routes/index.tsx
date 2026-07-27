@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Mississippi Struggle | Justice & Prison Reform" },
       {
         property: "og:description",
-        content: "Join the movement for justice and prison reform in Mississippi.",
+        content: "Mississippi has one of the highest incarceration rates in the world. Join the struggle for a fairer justice system — sign the petition and get involved.",
       },
     ],
   }),

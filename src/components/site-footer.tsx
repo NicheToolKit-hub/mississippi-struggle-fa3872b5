@@ -121,18 +121,45 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-primary-foreground/15">
-        <div className="container-page flex flex-col gap-2 py-6 text-xs text-primary-foreground/60 md:flex-row md:items-center md:justify-between">
-          <p>
-            © {new Date().getFullYear()} Mississippi Struggle Prison Reform Initiative.
-            A registered 501(c)(3) nonprofit. EIN 00-0000000. Contributions are
-            tax-deductible to the extent allowed by law.
-          </p>
-          <Link to="/auth" className="text-primary-foreground/50 hover:text-gold">
-            Team sign in
-          </Link>
+      <div className="border-t border-primary-foreground/15 bg-primary/95">
+        <div className="container-page flex flex-col gap-3 py-5 text-xs text-primary-foreground/75 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-2 font-semibold uppercase tracking-widest text-primary-foreground/80">
+            <ShieldCheck className="h-4 w-4 text-gold" aria-hidden="true" />
+            Team member access
+          </div>
+          {user ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-primary-foreground/70 truncate max-w-[220px]">
+                Signed in as {user.email}
+              </span>
+              {isAdmin && (
+                <Link to="/admin" className="rounded px-2 py-1 font-semibold hover:text-gold">
+                  Admin dashboard
+                </Link>
+              )}
+              <button
+                onClick={handleTeamSignOut}
+                className="inline-flex items-center gap-1 rounded border border-primary-foreground/30 px-3 py-1.5 font-semibold hover:border-gold hover:text-gold"
+              >
+                <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> Team sign out
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/auth"
+              className="inline-flex items-center gap-1 rounded border border-primary-foreground/30 px-3 py-1.5 font-semibold hover:border-gold hover:text-gold"
+            >
+              <LogIn className="h-3.5 w-3.5" aria-hidden="true" /> Team sign in
+            </Link>
+          )}
+        </div>
+        <div className="container-page pb-6 text-xs text-primary-foreground/55">
+          © {new Date().getFullYear()} Mississippi Struggle Prison Reform Initiative.
+          A registered 501(c)(3) nonprofit. EIN 00-0000000. Contributions are
+          tax-deductible to the extent allowed by law.
         </div>
       </div>
+
     </footer>
   );
 }

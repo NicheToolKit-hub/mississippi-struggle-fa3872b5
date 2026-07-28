@@ -17,6 +17,14 @@ const socials = [
 export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
+  const router = useRouter();
+
+  async function handleTeamSignOut() {
+    await signOut();
+    router.invalidate();
+  }
+
 
   /** Newsletter sign-up. Wire to a subscribers table later. */
   function handleSubscribe(e: React.FormEvent) {

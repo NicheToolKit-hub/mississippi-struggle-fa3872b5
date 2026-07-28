@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, LogIn, LogOut, ShieldCheck } from "lucide-react";
 import logoAsset from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
+
 
 const socials = [
   { label: "Facebook", icon: Facebook, href: "https://facebook.com" },

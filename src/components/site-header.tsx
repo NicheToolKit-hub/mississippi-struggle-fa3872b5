@@ -22,6 +22,13 @@ const navLinks = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await signOut();
+    router.invalidate();
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
@@ -31,7 +38,35 @@ export function SiteHeader() {
       >
         Skip to main content
       </a>
+      <div className="border-b border-border/60 bg-primary/95 text-primary-foreground">
+        <div className="container-page flex h-9 items-center justify-between gap-4 text-xs">
+          <span className="hidden sm:inline text-primary-foreground/80">
+            Visitors &amp; subscribers — join the movement
+          </span>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline text-primary-foreground/80 truncate max-w-[180px]">
+                {user.email}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1 rounded px-2 py-1 font-semibold hover:text-gold"
+              >
+                <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> Sign out
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/auth"
+              className="inline-flex items-center gap-1 rounded px-2 py-1 font-semibold hover:text-gold"
+            >
+              <LogIn className="h-3.5 w-3.5" aria-hidden="true" /> Sign in / Subscribe
+            </Link>
+          )}
+        </div>
+      </div>
       <div className="container-page flex h-16 items-center justify-between gap-4">
+
         <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="Mississippi Struggle home">
           <img src={logoAsset.url} alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain" />
           <span className="flex min-w-0 flex-col leading-tight">

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { Menu, X, LogIn, LogOut } from "lucide-react";
 import logoAsset from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+
 
 /** Primary site navigation. Links map 1:1 to the file-based routes. */
 const navLinks = [

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { Menu, X, LogIn, LogOut } from "lucide-react";
+import { Menu, X, LogIn, LogOut, Sparkles } from "lucide-react";
 import logoAsset from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,19 +38,26 @@ export function SiteHeader() {
       >
         Skip to main content
       </a>
-      <div className="border-b border-border/60 bg-primary/95 text-primary-foreground">
-        <div className="container-page flex h-9 items-center justify-between gap-4 text-xs">
-          <span className="hidden sm:inline text-primary-foreground/80">
-            Visitors &amp; subscribers — join the movement
+      <div className="relative overflow-hidden border-b border-gold/25 bg-primary text-primary-foreground">
+        {/* subtle gold sheen so the utility bar doesn't read as a plain strip */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_180%_at_85%_0%,var(--gold)_0%,transparent_55%)] opacity-20"
+        />
+        <div className="container-page relative flex h-10 items-center justify-between gap-4 text-xs">
+          <span className="hidden items-center gap-2 sm:inline-flex text-primary-foreground/85">
+            <Sparkles className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
+            <span className="font-medium tracking-wide">Visitors &amp; subscribers — join the movement</span>
           </span>
           {user ? (
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-primary-foreground/80 truncate max-w-[180px]">
-                {user.email}
+            <div className="ml-auto flex items-center gap-2">
+              <span className="hidden max-w-[180px] items-center gap-1.5 truncate rounded-full border border-primary-foreground/15 bg-primary-foreground/10 px-2.5 py-1 sm:inline-flex">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
+                <span className="truncate text-primary-foreground/90">{user.email}</span>
               </span>
               <button
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1 rounded px-2 py-1 font-semibold hover:text-gold"
+                className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 px-3 py-1 font-semibold text-gold transition-colors hover:bg-gold hover:text-gold-foreground"
               >
                 <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> Sign out
               </button>
@@ -58,13 +65,14 @@ export function SiteHeader() {
           ) : (
             <Link
               to="/auth"
-              className="inline-flex items-center gap-1 rounded px-2 py-1 font-semibold hover:text-gold"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1 font-semibold text-gold-foreground shadow-sm transition-transform hover:scale-[1.03] hover:bg-gold/90"
             >
               <LogIn className="h-3.5 w-3.5" aria-hidden="true" /> Sign in / Subscribe
             </Link>
           )}
         </div>
       </div>
+
       <div className="container-page flex h-16 items-center justify-between gap-4">
 
         <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="Mississippi Struggle home">

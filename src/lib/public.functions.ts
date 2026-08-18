@@ -201,3 +201,65 @@ export const submitContact = createServerFn({ method: "POST" })
     if (error) throw new Error("Could not send your message. Please try again.");
     return { ok: true };
   });
+
+// ---------------- Petition signatures ----------------
+
+export const signPetition = createServerFn({ method: "POST" })
+  .inputValidator((d) =>
+    z
+      .object({
+        name: z.string().trim().min(1).max(120),
+        email: z.string().trim().email().max(255),
+        zip: z.string().trim().regex(/^\d{5}$/),
+        comment: z.string().trim().max(500).optional().nullable(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const zipNum = Number(data.zip);
+    if (zipNum < 38600 || zipNum > 39799) {
+      throw new Error("Please enter a valid Mississippi ZIP code.");
+    }
+    const sb = publicClient();
+    const { error } = await sb.from("petition_signatures").insert({
+      name: data.name,
+      email: data.email,
+      zip: data.zip,
+      comment: data.comment || null,
+    });
+    if (error) throw new Error("Could not record your signature. Please try again.");
+    return { ok: true };
+  });
+
+/**
+ * Public signature list. Emails are never returned; names are shortened to
+ * first name + last initial so signers keep some privacy.
+ */
+export const listSignatures = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { count } = await supabaseAdmin
+    .from("petition_signatures")
+    .select("id", { count: "exact", head: true });
+  const { data } = await supabaseAdmin
+    .from("petition_signatures")
+    .select("id,name,zip,comment,created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  return {
+    total: count ?? 0,
+    signatures: (data ?? []).map((s) => {
+      const parts = s.name.trim().split(/\s+/);
+      const display =
+        parts.length > 1
+          ? `${parts[0]} ${parts[parts.length - 1]!.charAt(0).toUpperCase()}.`
+          : parts[0];
+      return {
+        id: s.id,
+        name: display,
+        zip: s.zip,
+        comment: s.comment,
+        createdAt: s.created_at,
+      };
+    }),
+  };
+});

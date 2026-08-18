@@ -1,13 +1,24 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, PenLine, Users } from "lucide-react";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, PenLine, Users, List, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { listSignatures, signPetition } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/petitions")({
   head: () => ({
@@ -16,42 +27,49 @@ export const Route = createFileRoute("/petitions")({
       {
         name: "description",
         content:
-          "Add your name to demand prison reform in Mississippi. Join thousands of residents calling on the Legislature to invest in people, not prisons.",
+          "Add your name to demand prison reform in Mississippi. Join residents calling on the Legislature to invest in people, not prisons.",
       },
       { property: "og:title", content: "Sign the Petition | Mississippi Struggle" },
       {
         property: "og:description",
         content: "Add your name to demand prison reform in Mississippi.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(signaturesQuery),
   component: PetitionsPage,
 });
 
 const GOAL = 10000;
-const BASE_SIGNATURES = 8432;
 
-/** Illustrative recent signees for the scrolling ticker. */
-const recentSignees = [
-  "Marcus T. — Jackson",
-  "Latoya W. — Hattiesburg",
-  "James R. — Biloxi",
-  "Denise K. — Greenville",
-  "Anthony P. — Tupelo",
-  "Sandra M. — Meridian",
-  "Carlos D. — Gulfport",
-  "Brenda L. — Oxford",
-  "Reginald S. — Vicksburg",
-  "Patrice N. — Columbus",
-];
+const signaturesQuery = queryOptions({
+  queryKey: ["petition-signatures"],
+  queryFn: () => listSignatures(),
+});
 
 function PetitionsPage() {
-  const [signatures, setSignatures] = useState(BASE_SIGNATURES);
+  const queryClient = useQueryClient();
+  const { data } = useQuery(signaturesQuery);
+  const signatures = data?.signatures ?? [];
+  const total = data?.total ?? 0;
+
   const [signed, setSigned] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", zip: "", comment: "" });
   const [error, setError] = useState("");
 
-  const pct = Math.min(Math.round((signatures / GOAL) * 100), 100);
+  const sign = useMutation({
+    mutationFn: (input: { name: string; email: string; zip: string; comment: string }) =>
+      signPetition({ data: { ...input, comment: input.comment || null } }),
+    onSuccess: () => {
+      setSigned(true);
+      queryClient.invalidateQueries({ queryKey: ["petition-signatures"] });
+    },
+    onError: (e: Error) => setError(e.message || "Something went wrong. Please try again."),
+  });
+
+  const pct = Math.min(Math.round((total / GOAL) * 100), 100);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,9 +90,53 @@ function PetitionsPage() {
       return;
     }
 
-    setSignatures((s) => s + 1);
-    setSigned(true);
+    sign.mutate(form);
   }
+
+  /** Slide-out panel listing every signature, with the live total on top. */
+  const signatureDrawer = (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="gap-2">
+          <List className="h-4 w-4" aria-hidden="true" />
+          View all signatures
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle className="font-display text-4xl font-extrabold text-primary">
+            <span className="animate-pulse">
+              <AnimatedCounter value={total} />
+            </span>
+          </SheetTitle>
+          <SheetDescription>
+            signatures and counting — every name is a demand for reform.
+          </SheetDescription>
+        </SheetHeader>
+        <ScrollArea className="-mx-6 mt-4 flex-1 px-6">
+          <ul className="space-y-3 pb-8">
+            {signatures.length === 0 && (
+              <li className="text-sm text-muted-foreground">
+                No signatures yet — be the first to sign.
+              </li>
+            )}
+            {signatures.map((s) => (
+              <li key={s.id} className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-semibold">{s.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(s.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">ZIP {s.zip}</p>
+                {s.comment && <p className="mt-2 text-sm leading-relaxed">"{s.comment}"</p>}
+              </li>
+            ))}
+          </ul>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
+  );
 
   return (
     <>
@@ -91,9 +153,7 @@ function PetitionsPage() {
             <CardContent className="p-7">
               <h2 id="petition-heading" className="text-2xl">Our demand</h2>
               <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
-                <p>
-                  To the Honorable Members of the Mississippi Legislature:
-                </p>
+                <p>To the Honorable Members of the Mississippi Legislature:</p>
                 <p>
                   We, the undersigned residents of Mississippi, call on you to enact
                   meaningful criminal-justice reform. We demand expanded parole
@@ -123,11 +183,8 @@ function PetitionsPage() {
                 >
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
                   <p>
-                    Thank you, <strong>{form.name}</strong>! Your signature has been added.
+                    Thank you, <strong>{form.name}</strong>! Your signature has been recorded.
                     Share this petition with friends and family to amplify our voice.
-                    <span className="mt-1 block text-muted-foreground">
-                      (Demo only — no data was stored. Connect Lovable Cloud to persist signatures.)
-                    </span>
                   </p>
                 </div>
               ) : (
@@ -195,7 +252,16 @@ function PetitionsPage() {
                     </p>
                   )}
 
-                  <Button type="submit" variant="donate" size="lg" className="w-full">
+                  <Button
+                    type="submit"
+                    variant="donate"
+                    size="lg"
+                    className="w-full"
+                    disabled={sign.isPending}
+                  >
+                    {sign.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                    )}
                     Sign the Petition
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
@@ -207,20 +273,24 @@ function PetitionsPage() {
           </Card>
         </section>
 
-        {/* Live counter + ticker */}
+        {/* Live counter + signature drawer */}
         <aside className="space-y-6">
           <Card className="shadow-[var(--shadow-card)]">
             <CardContent className="p-7">
               <div className="flex items-baseline justify-between">
-                <span className="font-display text-4xl font-bold text-primary">
-                  <AnimatedCounter value={signatures} />
+                <span className="font-display text-5xl font-extrabold text-primary">
+                  <span className="animate-pulse">
+                    <AnimatedCounter value={total} />
+                  </span>
                 </span>
-                <span className="text-sm text-muted-foreground">of {GOAL.toLocaleString()} goal</span>
+                <span className="text-sm text-muted-foreground">
+                  of {GOAL.toLocaleString()} goal
+                </span>
               </div>
               <div
                 className="mt-4 h-3 w-full overflow-hidden rounded-full bg-muted"
                 role="progressbar"
-                aria-valuenow={signatures}
+                aria-valuenow={total}
                 aria-valuemin={0}
                 aria-valuemax={GOAL}
                 aria-label="Signatures toward goal"
@@ -231,29 +301,35 @@ function PetitionsPage() {
                 />
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                <strong className="text-foreground">{pct}%</strong> of the way there — every signature counts.
+                <strong className="text-foreground">{pct}%</strong> of the way there — every
+                signature counts.
               </p>
+              <div className="mt-5">{signatureDrawer}</div>
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden shadow-[var(--shadow-card)]">
-            <CardContent className="p-7 pb-4">
+          <Card className="shadow-[var(--shadow-card)]">
+            <CardContent className="p-7">
               <h3 className="flex items-center gap-2 text-base font-semibold">
                 <Users className="h-4 w-4 text-primary" aria-hidden="true" /> Recent signees
               </h3>
-            </CardContent>
-            <div className="relative overflow-hidden border-t border-border py-4" aria-hidden="true">
-              <div className="ticker-track flex w-max gap-3 whitespace-nowrap px-7">
-                {[...recentSignees, ...recentSignees].map((name, i) => (
-                  <span
-                    key={i}
-                    className="rounded-full bg-accent px-3 py-1 text-sm text-accent-foreground"
+              <ul className="mt-4 space-y-2">
+                {signatures.slice(0, 8).map((s) => (
+                  <li
+                    key={s.id}
+                    className="flex items-center justify-between rounded-full bg-accent px-3 py-1.5 text-sm text-accent-foreground"
                   >
-                    {name}
-                  </span>
+                    <span>{s.name}</span>
+                    <span className="text-xs opacity-70">{s.zip}</span>
+                  </li>
                 ))}
-              </div>
-            </div>
+                {signatures.length === 0 && (
+                  <li className="text-sm text-muted-foreground">
+                    Be the first name on this letter.
+                  </li>
+                )}
+              </ul>
+            </CardContent>
           </Card>
         </aside>
       </div>

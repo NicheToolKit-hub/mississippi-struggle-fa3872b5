@@ -134,6 +134,33 @@ export type Database = {
         }
         Relationships: []
       }
+      petition_signatures: {
+        Row: {
+          comment: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          zip: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          zip: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          zip?: string
+        }
+        Relationships: []
+      }
       prisoner_profiles: {
         Row: {
           bio: string | null

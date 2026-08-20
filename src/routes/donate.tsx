@@ -163,13 +163,30 @@ function DonatePage() {
         <section aria-labelledby="give-heading">
           <h2 id="give-heading" className="text-2xl">Make a gift</h2>
 
+          <PetitionMomentum />
+
+          {search.status === "success" && (
+            <div role="status" className="mt-6 flex items-start gap-3 rounded-lg bg-success/10 p-4 text-sm">
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
+              <p>
+                Thank you — your gift went through. A receipt is on its way to your email.
+                Your support funds legal defense, education, and advocacy across Mississippi.
+              </p>
+            </div>
+          )}
+          {search.status === "canceled" && (
+            <div role="status" className="mt-6 rounded-lg border border-border bg-muted p-4 text-sm">
+              Checkout was canceled — no payment was taken. You can try again whenever you're ready.
+            </div>
+          )}
+
           {/* Frequency toggle */}
           <div
             role="group"
             aria-label="Donation frequency"
             className="mt-6 inline-flex rounded-lg border border-border bg-muted p-1"
           >
-            {(["monthly", "once"] as const).map((f) => (
+            {(["monthly", "annual", "once"] as const).map((f) => (
               <button
                 key={f}
                 type="button"
@@ -182,10 +199,11 @@ function DonatePage() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {f === "monthly" ? "Monthly" : "One-time"}
+                {f === "monthly" ? "Monthly" : f === "annual" ? "Annual" : "One-time"}
               </button>
             ))}
           </div>
+
 
           {/* Tiered cards */}
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">

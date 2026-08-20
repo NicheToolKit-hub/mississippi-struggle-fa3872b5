@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { CreditCard, Lock, Check, Heart, HeartHandshake, Package, Share2, Megaphone, Lightbulb, Users } from "lucide-react";
+import { CreditCard, Lock, Check, Heart, HeartHandshake, Package, Share2, Megaphone, Lightbulb, Users, PenLine, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,29 +11,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { submitVolunteerOffer } from "@/lib/public.functions";
+import { submitVolunteerOffer, listSignatures } from "@/lib/public.functions";
+import { createDonationCheckout } from "@/lib/donations.functions";
+import { useAuth } from "@/hooks/use-auth";
 import { OFFER_TYPES } from "@/lib/media";
 
 export const Route = createFileRoute("/donate")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    status: typeof search.status === "string" ? search.status : undefined,
+    session_id: typeof search.session_id === "string" ? search.session_id : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Donate | Mississippi Struggle" },
       {
         name: "description",
         content:
-          "Fund legal defense, education, and advocacy for prison reform in Mississippi. One-time or monthly gifts, with full transparency on how funds are used.",
+          "Fund legal defense, education, and advocacy for prison reform in Mississippi. One-time, monthly, or annual gifts, with full transparency on how funds are used.",
       },
       { property: "og:title", content: "Donate | Mississippi Struggle" },
       {
         property: "og:description",
         content: "Your gift funds legal defense, education, and advocacy across Mississippi.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: DonatePage,
 });
 
 const presetAmounts = [25, 50, 100, 250];
+
+type Frequency = "once" | "monthly" | "annual";
+
+const frequencyLabel: Record<Frequency, string> = {
+  monthly: "per month",
+  annual: "per year",
+  once: "one-time",
+};
 
 /** Fund allocation breakdown — illustrative figures. */
 const allocation = [
@@ -53,13 +71,83 @@ const donors = [
   "River City Partners",
 ];
 
+/**
+ * Live petition momentum panel — links the donate flow to the petition
+ * counter so givers can also add their signature.
+ */
+function PetitionMomentum() {
+  const fetchSignatures = useServerFn(listSignatures);
+  const { data } = useQuery({
+    queryKey: ["petition-signatures"],
+    queryFn: () => fetchSignatures(),
+    refetchInterval: 60_000,
+  });
+  const total = data?.total ?? 0;
+
+  return (
+    <Card className="border-gold/40 bg-gold/5">
+      <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-widest text-gold">
+            Petition momentum
+          </p>
+          <p className="mt-1 font-display text-4xl font-bold text-primary tabular-nums animate-pulse">
+            {total.toLocaleString()}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Mississippians have signed for reform. Dollars and signatures move together.
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/petitions">
+            <PenLine className="h-4 w-4" /> Sign the petition <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function DonatePage() {
-  const [frequency, setFrequency] = useState<"once" | "monthly">("monthly");
+  const search = useSearch({ from: "/donate" });
+  const { user } = useAuth();
+  const startCheckout = useServerFn(createDonationCheckout);
+  const [frequency, setFrequency] = useState<Frequency>("monthly");
   const [amount, setAmount] = useState<number>(50);
   const [custom, setCustom] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const effectiveAmount = custom ? Number(custom) || 0 : amount;
+
+  async function handleGive(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (effectiveAmount < 1) {
+      setError("Please enter an amount of $1 or more.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await startCheckout({
+        data: {
+          amount: effectiveAmount,
+          frequency,
+          name,
+          email,
+          origin: window.location.origin,
+          userId: user?.id ?? null,
+        },
+      });
+      window.location.href = res.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not start checkout. Please try again.");
+      setBusy(false);
+    }
+  }
+
 
   return (
     <>

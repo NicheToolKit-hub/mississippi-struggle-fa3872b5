@@ -17,10 +17,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { OFFER_TYPES } from "@/lib/media";
 
 export const Route = createFileRoute("/donate")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    status: typeof search.status === "string" ? search.status : undefined,
-    session_id: typeof search.session_id === "string" ? search.session_id : undefined,
+  validateSearch: (search: Record<string, unknown>): { status?: string; session_id?: string } => ({
+    ...(typeof search.status === "string" ? { status: search.status } : {}),
+    ...(typeof search.session_id === "string" ? { session_id: search.session_id } : {}),
   }),
+
   head: () => ({
     meta: [
       { title: "Donate | Mississippi Struggle" },

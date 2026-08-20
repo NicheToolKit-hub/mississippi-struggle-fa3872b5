@@ -224,9 +224,7 @@ function DonatePage() {
                 )}
               >
                 <span className="block font-display text-2xl font-bold text-primary">${a}</span>
-                <span className="text-xs text-muted-foreground">
-                  {frequency === "monthly" ? "per month" : "one-time"}
-                </span>
+                <span className="text-xs text-muted-foreground">{frequencyLabel[frequency]}</span>
               </button>
             ))}
           </div>
@@ -248,84 +246,64 @@ function DonatePage() {
             </div>
           </div>
 
-          {/* Mock payment gateway UI */}
+          {/* Secure Stripe Checkout handoff — card details are entered on Stripe, never here. */}
           <Card className="mt-6 border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-base font-semibold">
-                  <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" /> Payment details
+                  <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" /> Your details
                 </h3>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Lock className="h-3.5 w-3.5" aria-hidden="true" /> Secure
+                  <Lock className="h-3.5 w-3.5" aria-hidden="true" /> Secure checkout
                 </span>
               </div>
 
-              {submitted ? (
-                <div
-                  role="status"
-                  className="mt-5 flex items-start gap-3 rounded-lg bg-success/10 p-4 text-sm"
-                >
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
-                  <p>
-                    Thank you! This is a demo — no payment was processed. In production this
-                    form would connect to Stripe or PayPal to securely charge{" "}
-                    <strong>${effectiveAmount}</strong>{" "}
-                    {frequency === "monthly" ? "per month" : "one time"}.
-                  </p>
-                </div>
-              ) : (
-                <form
-                  className="mt-5 space-y-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSubmitted(true);
-                  }}
-                >
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="card-name">Name on card</Label>
-                      <Input id="card-name" required className="mt-1.5" autoComplete="cc-name" />
-                    </div>
-                    <div>
-                      <Label htmlFor="card-email">Email for receipt</Label>
-                      <Input id="card-email" type="email" required className="mt-1.5" autoComplete="email" />
-                    </div>
-                  </div>
+              <form className="mt-5 space-y-4" onSubmit={handleGive}>
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <Label htmlFor="card-number">Card number</Label>
+                    <Label htmlFor="donor-name">Your name</Label>
                     <Input
-                      id="card-number"
-                      inputMode="numeric"
-                      placeholder="4242 4242 4242 4242"
+                      id="donor-name"
+                      required
+                      maxLength={120}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="mt-1.5"
-                      autoComplete="cc-number"
+                      autoComplete="name"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="card-exp">Expiry</Label>
-                      <Input id="card-exp" placeholder="MM / YY" className="mt-1.5" autoComplete="cc-exp" />
-                    </div>
-                    <div>
-                      <Label htmlFor="card-cvc">CVC</Label>
-                      <Input id="card-cvc" placeholder="123" className="mt-1.5" autoComplete="cc-csc" />
-                    </div>
+                  <div>
+                    <Label htmlFor="donor-email">Email for receipt</Label>
+                    <Input
+                      id="donor-email"
+                      type="email"
+                      required
+                      maxLength={255}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-1.5"
+                      autoComplete="email"
+                    />
                   </div>
+                </div>
 
-                  <Button type="submit" variant="donate" size="lg" className="w-full">
-                    <Heart className="h-4 w-4" />
-                    Give ${effectiveAmount} {frequency === "monthly" ? "/ month" : ""}
-                  </Button>
-                  <p className="flex items-center justify-center gap-3 pt-1 text-xs text-muted-foreground">
-                    <span className="rounded bg-muted px-2 py-1 font-semibold">Stripe</span>
-                    <span className="rounded bg-muted px-2 py-1 font-semibold">PayPal</span>
-                    <span>· 256-bit encrypted · tax-deductible</span>
-                  </p>
-                </form>
-              )}
+                {error && <p role="alert" className="text-sm text-crimson">{error}</p>}
+
+                <Button type="submit" variant="donate" size="lg" className="w-full" disabled={busy}>
+                  <Heart className="h-4 w-4" />
+                  {busy
+                    ? "Redirecting to secure checkout…"
+                    : `Give $${effectiveAmount}${frequency === "once" ? "" : frequency === "monthly" ? " / month" : " / year"}`}
+                </Button>
+                <p className="text-center text-xs text-muted-foreground">
+                  You'll finish payment on Stripe's secure page. We never see or store your card
+                  details. {user ? "This gift will be linked to your account." : "No account needed."}
+                </p>
+              </form>
             </CardContent>
           </Card>
         </section>
+
 
         {/* Transparency */}
         <aside className="space-y-8">

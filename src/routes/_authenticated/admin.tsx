@@ -103,6 +103,8 @@ function AdminPage() {
           </TabsTrigger>
           <TabsTrigger value="profiles"><Users className="mr-1.5 h-4 w-4" /> Profiles</TabsTrigger>
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
+          <TabsTrigger value="donations"><DollarSign className="mr-1.5 h-4 w-4" /> Donations</TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="content" className="mt-6"><CmsContentTab /></TabsContent>

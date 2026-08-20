@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell, FileStack, Pencil } from "lucide-react";
+import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell, FileStack, Pencil, DollarSign, Download, PenLine } from "lucide-react";
 import {
   getReviewCounts,
   listSubmissions,
@@ -28,6 +28,8 @@ import {
   adminUpdateContent,
   adminDeleteContent,
 } from "@/lib/cms.functions";
+import { adminListDonations } from "@/lib/donations.functions";
+import { listSignatures } from "@/lib/public.functions";
 import { cmsTypeLabel, CMS_CATEGORIES } from "@/lib/cms";
 import { submissionTypeLabel, offerTypeLabel, MEDIA_KINDS } from "@/lib/media";
 import { useAuth } from "@/hooks/use-auth";
@@ -103,6 +105,8 @@ function AdminPage() {
           </TabsTrigger>
           <TabsTrigger value="profiles"><Users className="mr-1.5 h-4 w-4" /> Profiles</TabsTrigger>
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
+          <TabsTrigger value="donations"><DollarSign className="mr-1.5 h-4 w-4" /> Donations</TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="content" className="mt-6"><CmsContentTab /></TabsContent>
@@ -111,6 +115,7 @@ function AdminPage() {
         <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
         <TabsContent value="profiles" className="mt-6"><ProfilesTab /></TabsContent>
         <TabsContent value="media" className="mt-6"><MediaTab /></TabsContent>
+        <TabsContent value="donations" className="mt-6"><DonationsTab /></TabsContent>
       </Tabs>
     </div>
   );
@@ -692,6 +697,165 @@ function MediaTab() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+
+// ---------- Donations ----------
+const usd = (cents: number) =>
+  (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+/**
+ * Donations dashboard: live totals, a filterable gift list, CSV export, and
+ * the petition signature counter so fundraising and organizing momentum sit
+ * side by side.
+ */
+function DonationsTab() {
+  const fetchDonations = useServerFn(adminListDonations);
+  const fetchSignatures = useServerFn(listSignatures);
+  const [status, setStatus] = useState<"all" | "pending" | "succeeded" | "failed" | "refunded">("all");
+  const [frequency, setFrequency] = useState<"all" | "once" | "monthly" | "annual">("all");
+  const [q, setQ] = useState("");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-donations", status, frequency],
+    queryFn: () => fetchDonations({ data: { status, frequency } }),
+  });
+  const { data: petition } = useQuery({
+    queryKey: ["petition-signatures"],
+    queryFn: () => fetchSignatures(),
+    refetchInterval: 60_000,
+  });
+
+  const rows = (data?.donations ?? []).filter((d: any) => {
+    if (!q.trim()) return true;
+    const needle = q.toLowerCase();
+    return (
+      (d.donor_name ?? "").toLowerCase().includes(needle) ||
+      (d.donor_email ?? "").toLowerCase().includes(needle)
+    );
+  });
+
+  function exportCsv() {
+    const header = ["Date", "Donor", "Email", "Amount", "Frequency", "Status"];
+    const lines = rows.map((d: any) =>
+      [
+        new Date(d.created_at).toISOString(),
+        d.donor_name ?? "",
+        d.donor_email ?? "",
+        (d.amount_cents / 100).toFixed(2),
+        d.frequency,
+        d.status,
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(","),
+    );
+    const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `donations-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const stats = data?.stats;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {[
+          { label: "Raised all time", value: usd(stats?.totalCents ?? 0) },
+          { label: "This month", value: usd(stats?.monthCents ?? 0) },
+          { label: "Average gift", value: usd(stats?.avgCents ?? 0) },
+          { label: "Recurring gifts", value: String(stats?.recurringCount ?? 0) },
+          { label: "Petition signatures", value: (petition?.total ?? 0).toLocaleString() },
+        ].map((s) => (
+          <Card key={s.label}>
+            <CardContent className="p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{s.label}</p>
+              <p className="mt-1 font-display text-2xl font-bold text-primary tabular-nums">{s.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <Label htmlFor="don-status">Status</Label>
+          <select
+            id="don-status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as any)}
+            className="mt-1.5 h-10 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {["all", "succeeded", "pending", "failed", "refunded"].map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="don-freq">Frequency</Label>
+          <select
+            id="don-freq"
+            value={frequency}
+            onChange={(e) => setFrequency(e.target.value as any)}
+            className="mt-1.5 h-10 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {["all", "once", "monthly", "annual"].map((f) => (
+              <option key={f} value={f}>{f}</option>
+            ))}
+          </select>
+        </div>
+        <div className="min-w-52 flex-1">
+          <Label htmlFor="don-search">Search donor</Label>
+          <Input id="don-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name or email" className="mt-1.5" />
+        </div>
+        <Button variant="outline" onClick={exportCsv} disabled={!rows.length}>
+          <Download className="h-4 w-4" /> Export CSV
+        </Button>
+        <Button asChild variant="outline">
+          <a href="/petitions"><PenLine className="h-4 w-4" /> Petition page</a>
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <Empty>Loading donations…</Empty>
+      ) : rows.length === 0 ? (
+        <Empty>No donations match these filters yet.</Empty>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Donation records</caption>
+            <thead className="bg-muted text-left">
+              <tr>
+                <th scope="col" className="px-4 py-2 font-semibold">Date</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Donor</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Amount</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Frequency</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((d: any) => (
+                <tr key={d.id} className="border-t border-border">
+                  <td className="px-4 py-2 whitespace-nowrap">{new Date(d.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-2">
+                    <span className="font-medium">{d.donor_name ?? "Anonymous"}</span>
+                    <span className="block text-xs text-muted-foreground">{d.donor_email}</span>
+                  </td>
+                  <td className="px-4 py-2 tabular-nums">{usd(d.amount_cents)}</td>
+                  <td className="px-4 py-2">{d.frequency}</td>
+                  <td className="px-4 py-2">
+                    <Badge variant={d.status === "succeeded" ? "default" : "secondary"}>{d.status}</Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

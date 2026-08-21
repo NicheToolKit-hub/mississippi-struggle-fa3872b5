@@ -93,13 +93,15 @@ const news = [
 ];
 
 function HomePage() {
+  const { links, heroImageUrl } = Route.useLoaderData();
+
   return (
     <>
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <img
-          src={heroImg}
-          alt="A Mississippi courthouse at dawn"
+          src={heroImageUrl ?? heroImg}
+          alt="A stone Lady Justice statue lit at dawn"
           width={1920}
           height={1080}
           className="absolute inset-0 -z-10 h-full w-full object-cover"
@@ -109,18 +111,16 @@ function HomePage() {
           style={{ background: "var(--gradient-hero)" }}
           aria-hidden="true"
         />
-        <div className="container-page flex min-h-[78vh] flex-col justify-center py-20 text-primary-foreground">
-          <p className="mb-4 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-gold">
+        <div className="container-page flex min-h-[62vh] flex-col justify-center py-12 text-primary-foreground md:py-16">
+          <p className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-gold">
             <Megaphone className="h-4 w-4" aria-hidden="true" /> Justice cannot wait
           </p>
           <h1 className="max-w-3xl text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
             Reform the system. Restore the people of Mississippi.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-primary-foreground/85">
-            We are families, advocates, and returning citizens building a justice
-            system rooted in dignity, fairness, and second chances. Stand with us.
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+
+          {/* Primary actions sit directly under the headline so they're visible without scrolling */}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button asChild variant="donate" size="xl">
               <Link to="/petitions">
                 Sign the Petition <ArrowRight className="h-4 w-4" />
@@ -130,8 +130,39 @@ function HomePage() {
               <Link to="/resources">Get Involved</Link>
             </Button>
           </div>
+
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-primary-foreground/85">
+            We are families, advocates, and returning citizens building a justice
+            system rooted in dignity, fairness, and second chances. Stand with us.
+          </p>
+
+          {links.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-gold">
+                Partner links
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-3">
+                {links.map((l) => (
+                  <li key={l.id}>
+                    <a
+                      href={l.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${l.label} (opens in a new tab)`}
+                      className="pulse-gold inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-gold-foreground shadow-lg transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+                    >
+                      {l.label}
+                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </section>
+
+
 
       {/* Impact metrics */}
       <section className="border-b border-border bg-secondary" aria-labelledby="impact-heading">

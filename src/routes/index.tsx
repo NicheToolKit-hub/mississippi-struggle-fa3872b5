@@ -1,11 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, FileText, Scale, Users, Megaphone } from "lucide-react";
+import { ArrowRight, FileText, Scale, Users, Megaphone, ExternalLink } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { listSiteLinks, getSiteSettings } from "@/lib/public.functions";
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const [links, settings] = await Promise.all([listSiteLinks(), getSiteSettings()]);
+    return { links: links.links, heroImageUrl: settings.heroImageUrl };
+  },
+  errorComponent: () => (
+    <div className="container-page py-24 text-center text-muted-foreground">
+      Something went wrong loading the homepage. Please refresh.
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="container-page py-24 text-center text-muted-foreground">Page not found.</div>
+  ),
   head: () => ({
     meta: [
       { title: "Mississippi Struggle | Justice & Prison Reform" },
@@ -23,6 +36,7 @@ export const Route = createFileRoute("/")({
   }),
   component: HomePage,
 });
+
 
 /** Illustrative statistics. Replace with live data from a backend later. */
 const metrics = [

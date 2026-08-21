@@ -203,3 +203,23 @@
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+
+/* Attention-grabbing pulse for featured partner links */
+@utility pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--gold) 65%, transparent);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 12px color-mix(in oklab, var(--gold) 0%, transparent);
+    transform: scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-gold { animation: none; }
+}

@@ -263,3 +263,36 @@ export const listSignatures = createServerFn({ method: "GET" }).handler(async ()
     }),
   };
 });
+
+// ---------------- Site links & settings (admin-managed) ----------------
+
+/** Featured external links shown on the homepage, managed from the admin dashboard. */
+export const listSiteLinks = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = publicClient();
+  const { data } = await sb
+    .from("site_links")
+    .select("id,label,url,description,sort_order")
+    .eq("active", true)
+    .order("sort_order", { ascending: true });
+  return { links: data ?? [] };
+});
+
+/**
+ * Public site settings. `hero_image_path` points at a private storage object,
+ * so it is signed into a temporary URL before it leaves the server.
+ */
+export const getSiteSettings = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = publicClient();
+  const { data } = await sb.from("site_settings").select("key,value");
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((r) => {
+    if (r.value) map[r.key] = r.value;
+  });
+  let heroImageUrl: string | null = null;
+  if (map.hero_image_url) heroImageUrl = map.hero_image_url;
+  if (map.hero_image_path) {
+    const signed = await signPaths([map.hero_image_path]);
+    heroImageUrl = signed[map.hero_image_path] ?? heroImageUrl;
+  }
+  return { settings: map, heroImageUrl };
+});

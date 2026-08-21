@@ -296,3 +296,90 @@ export const deleteMediaPost = createServerFn({ method: "POST" })
     await context.supabase.from("media_posts").delete().eq("id", data.id);
     return { ok: true };
   });
+
+// ---------------- Site links & settings ----------------
+
+export const listAdminSiteLinks = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data } = await context.supabase
+      .from("site_links")
+      .select("*")
+      .order("sort_order", { ascending: true });
+    return { links: data ?? [] };
+  });
+
+export const createSiteLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        label: z.string().trim().min(1).max(120),
+        url: z.string().trim().url().max(500),
+        description: z.string().trim().max(300).optional().nullable(),
+        sortOrder: z.number().int().min(0).max(999).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("site_links").insert({
+      label: data.label,
+      url: data.url,
+      description: data.description || null,
+      sort_order: data.sortOrder ?? 0,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const toggleSiteLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid(), active: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    await context.supabase.from("site_links").update({ active: data.active }).eq("id", data.id);
+    return { ok: true };
+  });
+
+export const deleteSiteLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    await context.supabase.from("site_links").delete().eq("id", data.id);
+    return { ok: true };
+  });
+
+/** Set a public site setting (e.g. the homepage background image). */
+export const setSiteSetting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({ key: z.string().trim().min(1).max(60), value: z.string().max(1000).nullable() })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase
+      .from("site_settings")
+      .upsert({ key: data.key, value: data.value, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const getAdminSiteSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data } = await context.supabase.from("site_settings").select("key,value");
+    const map: Record<string, string> = {};
+    (data ?? []).forEach((r: any) => {
+      if (r.value) map[r.key] = r.value;
+    });
+    const signed = map.hero_image_path
+      ? await signWith(context.supabase, [map.hero_image_path])
+      : {};
+    return { settings: map, heroPreviewUrl: map.hero_image_path ? signed[map.hero_image_path] ?? null : map.hero_image_url ?? null };
+  });

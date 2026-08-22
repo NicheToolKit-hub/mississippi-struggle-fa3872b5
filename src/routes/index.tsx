@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { listSiteLinks, getSiteSettings } from "@/lib/public.functions";
+import { readFraming, framingStyle } from "@/lib/hero-framing";
 
 export const Route = createFileRoute("/")({
   loader: async () => {

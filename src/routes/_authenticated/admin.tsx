@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell, FileStack, Pencil, DollarSign, Download, PenLine } from "lucide-react";
+import { Check, X, Trash2, Star, LogOut, Inbox, Mail, Users, Mic, ExternalLink, Bell, FileStack, Pencil, DollarSign, Download, PenLine, Link2 as LinkIcon, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
 import {
   getReviewCounts,
   listSubmissions,
@@ -20,6 +20,12 @@ import {
   listAdminMedia,
   createMediaPost,
   deleteMediaPost,
+  listAdminSiteLinks,
+  createSiteLink,
+  toggleSiteLink,
+  deleteSiteLink,
+  getAdminSiteSettings,
+  setSiteSetting,
 } from "@/lib/admin.functions";
 import {
   adminListContent,
@@ -33,6 +39,7 @@ import { listSignatures } from "@/lib/public.functions";
 import { cmsTypeLabel, CMS_CATEGORIES } from "@/lib/cms";
 import { submissionTypeLabel, offerTypeLabel, MEDIA_KINDS } from "@/lib/media";
 import { useAuth } from "@/hooks/use-auth";
+import { uploadSubmissionFile } from "@/lib/upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -859,6 +866,164 @@ function DonationsTab() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------- Site links & background image ----------
+function SiteTab() {
+  const qc = useQueryClient();
+  const fetchLinks = useServerFn(listAdminSiteLinks);
+  const createFn = useServerFn(createSiteLink);
+  const toggleFn = useServerFn(toggleSiteLink);
+  const deleteFn = useServerFn(deleteSiteLink);
+  const fetchSettings = useServerFn(getAdminSiteSettings);
+  const saveSetting = useServerFn(setSiteSetting);
+
+  const links = useQuery({ queryKey: ["admin-site-links"], queryFn: () => fetchLinks() });
+  const settings = useQuery({ queryKey: ["admin-site-settings"], queryFn: () => fetchSettings() });
+
+  const [label, setLabel] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const create = useMutation({
+    mutationFn: () => createFn({ data: { label, url, description, sortOrder: (links.data?.links.length ?? 0) + 1 } }),
+    onSuccess: () => {
+      toast.success("Link added to the homepage.");
+      setLabel(""); setUrl(""); setDescription("");
+      qc.invalidateQueries({ queryKey: ["admin-site-links"] });
+    },
+    onError: () => toast.error("Could not add the link. Check the URL is valid."),
+  });
+  const toggle = useMutation({
+    mutationFn: (v: { id: string; active: boolean }) => toggleFn({ data: v }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-site-links"] }),
+  });
+  const remove = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => { toast.success("Link removed."); qc.invalidateQueries({ queryKey: ["admin-site-links"] }); },
+  });
+
+  /** Upload a new homepage background and store its path in site settings. */
+  async function handleBackground(file: File | undefined) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const path = await uploadSubmissionFile(file, "site");
+      await saveSetting({ data: { key: "hero_image_path", value: path } });
+      toast.success("Background image updated.");
+      qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const clearBackground = useMutation({
+    mutationFn: () => saveSetting({ data: { key: "hero_image_path", value: null } }),
+    onSuccess: () => {
+      toast.success("Reverted to the default background.");
+      qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
+    },
+  });
+
+  const rows = links.data?.links ?? [];
+  return (
+    <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+      <div className="space-y-6">
+        <Card className="shadow-[var(--shadow-card)]">
+          <CardContent className="p-5">
+            <h3 className="text-lg font-semibold">Add a homepage link</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Links appear as pulsing gold buttons in the hero section.
+            </p>
+            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); create.mutate(); }}>
+              <div>
+                <Label htmlFor="l-label">Button label</Label>
+                <Input id="l-label" required maxLength={120} value={label} onChange={(e) => setLabel(e.target.value)} className="mt-1.5" />
+              </div>
+              <div>
+                <Label htmlFor="l-url">URL</Label>
+                <Input id="l-url" type="url" required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" className="mt-1.5" />
+              </div>
+              <div>
+                <Label htmlFor="l-desc">Short description (optional)</Label>
+                <Input id="l-desc" maxLength={300} value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" />
+              </div>
+              <Button type="submit" disabled={create.isPending}>Add link</Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-[var(--shadow-card)]">
+          <CardContent className="p-5">
+            <h3 className="flex items-center gap-2 text-lg font-semibold">
+              <ImageIcon className="h-4 w-4" aria-hidden="true" /> Homepage background image
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">JPG or PNG, up to 20MB. Wide images (1920×1080) work best.</p>
+            {settings.data?.heroPreviewUrl && (
+              <img
+                src={settings.data.heroPreviewUrl}
+                alt="Current homepage background"
+                className="mt-4 aspect-video w-full rounded-md object-cover"
+              />
+            )}
+            <div className="mt-4 space-y-3">
+              <Label htmlFor="hero-file">Upload a new background</Label>
+              <Input
+                id="hero-file"
+                type="file"
+                accept="image/*"
+                disabled={uploading}
+                onChange={(e) => handleBackground(e.target.files?.[0])}
+              />
+              {settings.data?.settings?.hero_image_path && (
+                <Button variant="outline" size="sm" onClick={() => clearBackground.mutate()}>
+                  Use default image
+                </Button>
+              )}
+              {uploading && <p className="text-sm text-muted-foreground">Uploading…</p>}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-lg font-semibold">Homepage links</h3>
+        {links.isLoading ? <Empty>Loading…</Empty> : rows.length === 0 ? <Empty>No links yet.</Empty> : (
+          <div className="space-y-3">
+            {rows.map((l: any) => (
+              <Card key={l.id} className="shadow-[var(--shadow-card)]">
+                <CardContent className="flex items-center justify-between gap-3 p-4">
+                  <div className="min-w-0">
+                    <h4 className="font-semibold">{l.label}</h4>
+                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="block truncate text-xs text-primary hover:underline">
+                      {l.url}
+                    </a>
+                    {l.description && <p className="mt-1 text-xs text-muted-foreground">{l.description}</p>}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label={l.active ? `Hide ${l.label}` : `Show ${l.label}`}
+                      onClick={() => toggle.mutate({ id: l.id, active: !l.active })}
+                    >
+                      {l.active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                    </Button>
+                    <Button size="sm" variant="ghost" aria-label={`Delete ${l.label}`} onClick={() => remove.mutate(l.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

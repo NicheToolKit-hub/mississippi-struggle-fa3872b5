@@ -106,6 +106,7 @@ function AdminPage() {
           <TabsTrigger value="profiles"><Users className="mr-1.5 h-4 w-4" /> Profiles</TabsTrigger>
           <TabsTrigger value="media"><Mic className="mr-1.5 h-4 w-4" /> Media</TabsTrigger>
           <TabsTrigger value="donations"><DollarSign className="mr-1.5 h-4 w-4" /> Donations</TabsTrigger>
+          <TabsTrigger value="site"><LinkIcon className="mr-1.5 h-4 w-4" /> Links &amp; Background</TabsTrigger>
 
         </TabsList>
 
@@ -116,6 +117,8 @@ function AdminPage() {
         <TabsContent value="profiles" className="mt-6"><ProfilesTab /></TabsContent>
         <TabsContent value="media" className="mt-6"><MediaTab /></TabsContent>
         <TabsContent value="donations" className="mt-6"><DonationsTab /></TabsContent>
+        <TabsContent value="site" className="mt-6"><SiteTab /></TabsContent>
+
       </Tabs>
     </div>
   );

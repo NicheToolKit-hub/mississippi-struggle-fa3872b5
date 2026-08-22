@@ -38,6 +38,9 @@ import { adminListDonations } from "@/lib/donations.functions";
 import { listSignatures } from "@/lib/public.functions";
 import { cmsTypeLabel, CMS_CATEGORIES } from "@/lib/cms";
 import { submissionTypeLabel, offerTypeLabel, MEDIA_KINDS } from "@/lib/media";
+import { Slider } from "@/components/ui/slider";
+import { readFraming, framingStyle, type HeroFraming } from "@/lib/hero-framing";
+import heroFallback from "@/assets/hero.jpg";
 import { useAuth } from "@/hooks/use-auth";
 import { uploadSubmissionFile } from "@/lib/upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -870,6 +873,158 @@ function DonationsTab() {
   );
 }
 
+
+/**
+ * Crop / position controls for the homepage hero image. Mobile and desktop are
+ * framed independently so the focal point stays visible on both.
+ */
+function HeroFramingEditor({
+  previewUrl,
+  settings,
+  save,
+  onSaved,
+}: {
+  previewUrl: string;
+  settings: Record<string, string> | undefined;
+  save: (args: { data: { key: string; value: string | null } }) => Promise<unknown>;
+  onSaved: () => void;
+}) {
+  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [desktop, setDesktop] = useState<HeroFraming>(() => readFraming(settings, "desktop"));
+  const [mobile, setMobile] = useState<HeroFraming>(() => readFraming(settings, "mobile"));
+  const [saving, setSaving] = useState(false);
+
+  // Re-sync when the saved settings load or change.
+  useEffect(() => {
+    setDesktop(readFraming(settings, "desktop"));
+    setMobile(readFraming(settings, "mobile"));
+  }, [settings]);
+
+  const current = device === "desktop" ? desktop : mobile;
+  const setCurrent = (patch: Partial<HeroFraming>) =>
+    device === "desktop"
+      ? setDesktop((f) => ({ ...f, ...patch }))
+      : setMobile((f) => ({ ...f, ...patch }));
+
+  async function persist() {
+    setSaving(true);
+    try {
+      const entries: Array<[string, string]> = [
+        ["hero_focus_x_desktop", String(desktop.x)],
+        ["hero_focus_y_desktop", String(desktop.y)],
+        ["hero_zoom_desktop", String(desktop.zoom)],
+        ["hero_focus_x_mobile", String(mobile.x)],
+        ["hero_focus_y_mobile", String(mobile.y)],
+        ["hero_zoom_mobile", String(mobile.zoom)],
+      ];
+      for (const [key, value] of entries) await save({ data: { key, value } });
+      toast.success("Hero framing saved.");
+      onSaved();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not save the framing.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function reset() {
+    setDesktop({ x: 50, y: 50, zoom: 1 });
+    setMobile({ x: 50, y: 50, zoom: 1 });
+  }
+
+  return (
+    <Card className="shadow-[var(--shadow-card)]">
+      <CardContent className="p-5">
+        <h3 className="flex items-center gap-2 text-lg font-semibold">
+          <ImageIcon className="h-4 w-4" aria-hidden="true" /> Crop &amp; position
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Drag the sliders until the focal point sits where you want it. Mobile and desktop are
+          saved separately.
+        </p>
+
+        <div className="mt-4 inline-flex rounded-md border border-input p-1" role="group" aria-label="Choose device to frame">
+          {(["desktop", "mobile"] as const).map((d) => (
+            <Button
+              key={d}
+              type="button"
+              size="sm"
+              variant={device === d ? "default" : "ghost"}
+              aria-pressed={device === d}
+              onClick={() => setDevice(d)}
+            >
+              {d === "desktop" ? "Desktop" : "Mobile"}
+            </Button>
+          ))}
+        </div>
+
+        {/* Live preview at the hero's real aspect ratio for the chosen device */}
+        <div
+          className={`mt-4 overflow-hidden rounded-md border border-border ${device === "desktop" ? "aspect-[16/7] w-full" : "mx-auto aspect-[9/16] w-48"}`}
+        >
+          <img
+            src={previewUrl}
+            alt={`Hero preview for ${device}`}
+            style={framingStyle(current)}
+            className="h-full w-full object-cover"
+          />
+        </div>
+
+        <div className="mt-4 space-y-4">
+          <div>
+            <Label htmlFor={`focus-x-${device}`}>Horizontal focus — {Math.round(current.x)}%</Label>
+            <Slider
+              id={`focus-x-${device}`}
+              className="mt-2"
+              min={0}
+              max={100}
+              step={1}
+              value={[current.x]}
+              onValueChange={([v]) => setCurrent({ x: v })}
+              aria-label="Horizontal focus"
+            />
+          </div>
+          <div>
+            <Label htmlFor={`focus-y-${device}`}>Vertical focus — {Math.round(current.y)}%</Label>
+            <Slider
+              id={`focus-y-${device}`}
+              className="mt-2"
+              min={0}
+              max={100}
+              step={1}
+              value={[current.y]}
+              onValueChange={([v]) => setCurrent({ y: v })}
+              aria-label="Vertical focus"
+            />
+          </div>
+          <div>
+            <Label htmlFor={`zoom-${device}`}>Zoom — {current.zoom.toFixed(2)}x</Label>
+            <Slider
+              id={`zoom-${device}`}
+              className="mt-2"
+              min={1}
+              max={3}
+              step={0.05}
+              value={[current.zoom]}
+              onValueChange={([v]) => setCurrent({ zoom: v })}
+              aria-label="Zoom"
+            />
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Button type="button" onClick={persist} disabled={saving}>
+            {saving ? "Saving…" : "Save framing"}
+          </Button>
+          <Button type="button" variant="outline" onClick={reset} disabled={saving}>
+            Reset to center
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ---------- Site links & background image ----------
 function SiteTab() {
   const qc = useQueryClient();
@@ -989,6 +1144,13 @@ function SiteTab() {
             </div>
           </CardContent>
         </Card>
+
+        <HeroFramingEditor
+          previewUrl={settings.data?.heroPreviewUrl ?? heroFallback}
+          settings={settings.data?.settings}
+          onSaved={() => qc.invalidateQueries({ queryKey: ["admin-site-settings"] })}
+          save={saveSetting}
+        />
       </div>
 
       <div>

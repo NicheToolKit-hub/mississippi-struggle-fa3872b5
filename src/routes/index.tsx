@@ -9,7 +9,12 @@ import { listSiteLinks, getSiteSettings } from "@/lib/public.functions";
 export const Route = createFileRoute("/")({
   loader: async () => {
     const [links, settings] = await Promise.all([listSiteLinks(), getSiteSettings()]);
-    return { links: links.links, heroImageUrl: settings.heroImageUrl };
+    return {
+      links: links.links,
+      heroImageUrl: settings.heroImageUrl,
+      heroDesktop: readFraming(settings.settings, "desktop"),
+      heroMobile: readFraming(settings.settings, "mobile"),
+    };
   },
   errorComponent: () => (
     <div className="container-page py-24 text-center text-muted-foreground">

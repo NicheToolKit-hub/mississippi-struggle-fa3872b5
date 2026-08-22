@@ -99,18 +99,31 @@ const news = [
 ];
 
 function HomePage() {
-  const { links, heroImageUrl } = Route.useLoaderData();
+  const { links, heroImageUrl, heroDesktop, heroMobile } = Route.useLoaderData();
+  const heroSrc = heroImageUrl ?? heroImg;
 
   return (
     <>
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
+        {/* Mobile framing */}
         <img
-          src={heroImageUrl ?? heroImg}
+          src={heroSrc}
           alt="A stone Lady Justice statue lit at dawn"
           width={1920}
           height={1080}
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          style={framingStyle(heroMobile)}
+          className="absolute inset-0 -z-10 h-full w-full object-cover md:hidden"
+        />
+        {/* Desktop framing */}
+        <img
+          src={heroSrc}
+          alt=""
+          aria-hidden="true"
+          width={1920}
+          height={1080}
+          style={framingStyle(heroDesktop)}
+          className="absolute inset-0 -z-10 hidden h-full w-full object-cover md:block"
         />
         <div
           className="absolute inset-0 -z-10"

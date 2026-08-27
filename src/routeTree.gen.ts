@@ -18,6 +18,7 @@ import { Route as DonateRouteImport } from './routes/donate'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as PetitionsRouteImport } from './routes/petitions'
 import { Route as PodcastRouteImport } from './routes/podcast'
+import { Route as PrisonsRouteImport } from './routes/prisons'
 import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as ProposalsRouteImport } from './routes/proposals'
 import { Route as ResourcesRouteImport } from './routes/resources'
@@ -70,6 +71,11 @@ const PetitionsRoute = PetitionsRouteImport.update({
 const PodcastRoute = PodcastRouteImport.update({
   id: '/podcast',
   path: '/podcast',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrisonsRoute = PrisonsRouteImport.update({
+  id: '/prisons',
+  path: '/prisons',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfilesRoute = ProfilesRouteImport.update({
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
+  '/prisons': typeof PrisonsRoute
   '/profiles': typeof ProfilesRouteWithChildren
   '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
+  '/prisons': typeof PrisonsRoute
   '/profiles': typeof ProfilesRouteWithChildren
   '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/education': typeof EducationRoute
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
+  '/prisons': typeof PrisonsRoute
   '/profiles': typeof ProfilesRouteWithChildren
   '/proposals': typeof ProposalsRoute
   '/resources': typeof ResourcesRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/petitions'
     | '/podcast'
+    | '/prisons'
     | '/profiles'
     | '/proposals'
     | '/resources'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/petitions'
     | '/podcast'
+    | '/prisons'
     | '/profiles'
     | '/proposals'
     | '/resources'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/petitions'
     | '/podcast'
+    | '/prisons'
     | '/profiles'
     | '/proposals'
     | '/resources'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   EducationRoute: typeof EducationRoute
   PetitionsRoute: typeof PetitionsRoute
   PodcastRoute: typeof PodcastRoute
+  PrisonsRoute: typeof PrisonsRoute
   ProfilesRoute: typeof ProfilesRouteWithChildren
   ProposalsRoute: typeof ProposalsRoute
   ResourcesRoute: typeof ResourcesRoute
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/podcast'
       fullPath: '/podcast'
       preLoaderRoute: typeof PodcastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prisons': {
+      id: '/prisons'
+      path: '/prisons'
+      fullPath: '/prisons'
+      preLoaderRoute: typeof PrisonsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profiles': {
@@ -422,6 +442,7 @@ const rootRouteChildren: RootRouteChildren = {
   EducationRoute: EducationRoute,
   PetitionsRoute: PetitionsRoute,
   PodcastRoute: PodcastRoute,
+  PrisonsRoute: PrisonsRoute,
   ProfilesRoute: ProfilesRouteWithChildren,
   ProposalsRoute: ProposalsRoute,
   ResourcesRoute: ResourcesRoute,

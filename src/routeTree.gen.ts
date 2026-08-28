@@ -26,6 +26,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedContributeRouteImport } from './routes/_authenticated/contribute'
+import { Route as PrisonsSlugRouteImport } from './routes/prisons_.$slug'
 import { Route as ProfilesIdRouteImport } from './routes/profiles.$id'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 
@@ -113,6 +114,11 @@ const AuthenticatedContributeRoute = AuthenticatedContributeRouteImport.update({
   path: '/contribute',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const PrisonsSlugRoute = PrisonsSlugRouteImport.update({
+  id: '/prisons_/$slug',
+  path: '/prisons/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilesIdRoute = ProfilesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/contribute': typeof AuthenticatedContributeRoute
+  '/prisons/$slug': typeof PrisonsSlugRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/submit': typeof SubmitRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/contribute': typeof AuthenticatedContributeRoute
+  '/prisons/$slug': typeof PrisonsSlugRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/submit': typeof SubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/contribute': typeof AuthenticatedContributeRoute
+  '/prisons_/$slug': typeof PrisonsSlugRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/admin'
     | '/contribute'
+    | '/prisons/$slug'
     | '/profiles/$id'
     | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/admin'
     | '/contribute'
+    | '/prisons/$slug'
     | '/profiles/$id'
     | '/api/public/webhooks/stripe'
   id:
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/_authenticated/admin'
     | '/_authenticated/contribute'
+    | '/prisons_/$slug'
     | '/profiles/$id'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitRoute: typeof SubmitRoute
+  PrisonsSlugRoute: typeof PrisonsSlugRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
 
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContributeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/prisons_/$slug': {
+      id: '/prisons_/$slug'
+      path: '/prisons/$slug'
+      fullPath: '/prisons/$slug'
+      preLoaderRoute: typeof PrisonsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profiles/$id': {
       id: '/profiles/$id'
       path: '/$id'
@@ -448,6 +468,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitRoute: SubmitRoute,
+  PrisonsSlugRoute: PrisonsSlugRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport

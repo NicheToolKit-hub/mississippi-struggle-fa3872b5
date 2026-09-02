@@ -92,6 +92,24 @@ const bills: Bill[] = [
     category: "Pretrial",
     position: "Watching",
   },
+  {
+    id: "HB 1739",
+    title: "Corrections Oversight Task Force",
+    summary:
+      "Creates an independent task force to inspect state correctional facilities, investigate deaths and abuse complaints, and report findings publicly to the Legislature.",
+    stage: "Committee",
+    category: "Oversight",
+    position: "Support",
+  },
+  {
+    id: "SB 2043",
+    title: "Parole Eligibility — Earned-Time Credits",
+    summary:
+      "Allows incarcerated people to earn time credits toward parole eligibility through education, treatment, and work programs, accelerating release for demonstrated rehabilitation.",
+    stage: "Introduced",
+    category: "Sentencing",
+    position: "Support",
+  },
 ];
 
 const positionStyles: Record<Bill["position"], string> = {

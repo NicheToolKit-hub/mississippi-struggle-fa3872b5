@@ -24,7 +24,10 @@ export const Route = createFileRoute("/education")({
         property: "og:description",
         content: "Resources explaining the Mississippi penal system and your legal rights.",
       },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/education" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/education" }],
   }),
   component: EducationPage,
 });

@@ -20,7 +20,10 @@ export const Route = createFileRoute("/contact")({
       },
       { property: "og:title", content: "Contact | Mississippi Struggle" },
       { property: "og:description", content: "Reach the Mississippi Struggle team." },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/contact" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/contact" }],
   }),
   component: ContactPage,
 });

@@ -22,7 +22,10 @@ export const Route = createFileRoute("/bills")({
         property: "og:description",
         content: "A searchable tracker of prison reform legislation in Mississippi.",
       },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/bills" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/bills" }],
   }),
   component: BillsPage,
 });

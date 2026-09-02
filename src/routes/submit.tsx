@@ -22,7 +22,10 @@ export const Route = createFileRoute("/submit")({
       },
       { property: "og:title", content: "Submit Content | Mississippi Struggle" },
       { property: "og:description", content: "Share work and stories for review by our team." },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/submit" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/submit" }],
   }),
   component: SubmitPage,
 });

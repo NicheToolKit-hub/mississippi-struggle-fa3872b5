@@ -32,7 +32,10 @@ export const Route = createFileRoute("/prisons")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/prisons" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/prisons" }],
   }),
   component: PrisonsPage,
   errorComponent: () => (

@@ -22,7 +22,10 @@ export const Route = createFileRoute("/proposals")({
         property: "og:description",
         content: "Ideas, campaigns, and initiatives proposed by our community.",
       },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/proposals" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/proposals" }],
   }),
   component: ProposalsPage,
 });

@@ -28,6 +28,16 @@ export const Route = createFileRoute("/prisons_/$slug")({
         { property: "og:description", content: description },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
+        {
+          property: "og:url",
+          content: `https://mississippi-struggle.lovable.app/prisons/${f.slug}`,
+        },
+      ],
+      links: [
+        {
+          rel: "canonical",
+          href: `https://mississippi-struggle.lovable.app/prisons/${f.slug}`,
+        },
       ],
     };
   },

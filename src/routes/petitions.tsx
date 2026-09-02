@@ -34,7 +34,6 @@ export const Route = createFileRoute("/petitions")({
         property: "og:description",
         content: "Add your name to demand prison reform in Mississippi.",
       },
-      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://mississippi-struggle.lovable.app/petitions" },
       { property: "og:type", content: "website" },

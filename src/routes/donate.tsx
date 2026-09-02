@@ -35,7 +35,6 @@ export const Route = createFileRoute("/donate")({
         property: "og:description",
         content: "Your gift funds legal defense, education, and advocacy across Mississippi.",
       },
-      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://mississippi-struggle.lovable.app/donate" },
       { property: "og:type", content: "website" },

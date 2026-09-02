@@ -27,7 +27,10 @@ export const Route = createFileRoute("/resources")({
         property: "og:description",
         content: "Find advocates, legal aid, and re-entry support across Mississippi.",
       },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/resources" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/resources" }],
   }),
   component: ResourcesPage,
 });

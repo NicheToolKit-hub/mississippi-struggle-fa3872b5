@@ -10,14 +10,17 @@ export const Route = createFileRoute("/profiles/$id")({
     if (!res.profile) throw notFound();
     return res;
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     const name = loaderData?.profile?.name ?? "Profile";
+    const url = `https://mississippi-struggle.lovable.app/profiles/${params.id}`;
     return {
       meta: [
         { title: `${name} | Voices Inside — Mississippi Struggle` },
         { name: "description", content: `Accomplishments, art, and writing by ${name}.` },
         { property: "og:title", content: `${name} | Mississippi Struggle` },
         { property: "og:description", content: `Honoring the work and character of ${name}.` },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
         ...(loaderData?.profile?.photoUrl
           ? [
               { property: "og:image", content: loaderData.profile.photoUrl },
@@ -25,6 +28,7 @@ export const Route = createFileRoute("/profiles/$id")({
             ]
           : []),
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   component: ProfileDetail,

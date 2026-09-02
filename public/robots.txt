@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://mississippi-struggle.lovable.app/sitemap.xml

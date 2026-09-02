@@ -30,9 +30,11 @@ export const Route = createFileRoute("/prisons")({
         content:
           "Search every Mississippi correctional facility, see its location, operator, and the conditions our coalition is tracking.",
       },
-      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app/prisons" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app/prisons" }],
   }),
   component: PrisonsPage,
   errorComponent: () => (

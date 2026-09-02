@@ -38,7 +38,10 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Mississippi has one of the highest incarceration rates in the world. Join the struggle for a fairer justice system — sign the petition and get involved.",
       },
+      { property: "og:url", content: "https://mississippi-struggle.lovable.app" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://mississippi-struggle.lovable.app" }],
   }),
   component: HomePage,
 });

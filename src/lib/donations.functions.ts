@@ -109,6 +109,36 @@ export const getDonationStats = createServerFn({ method: "GET" }).handler(async 
   return { totalCents, supporters, recurring, gifts: rows.length };
 });
 
+/**
+ * Public donor-transparency feed: succeeded gifts only, with donor names
+ * reduced to a first name + last initial. Emails and Stripe IDs never leave
+ * the server.
+ */
+export const listPublicDonations = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("donations")
+    .select("id,donor_name,amount_cents,frequency,created_at")
+    .eq("status", "succeeded")
+    .order("created_at", { ascending: false })
+    .limit(25);
+  return {
+    donations: (data ?? []).map((r) => {
+      const parts = String(r.donor_name ?? "").trim().split(/\s+/).filter(Boolean);
+      const display = parts.length
+        ? `${parts[0]}${parts.length > 1 ? " " + parts[parts.length - 1]![0] + "." : ""}`
+        : "Anonymous";
+      return {
+        id: r.id,
+        donor: display,
+        amountCents: r.amount_cents,
+        frequency: r.frequency,
+        createdAt: r.created_at,
+      };
+    }),
+  };
+});
+
 /** Confirms a gift right after checkout returns (before webhook, if needed). */
 export const getDonationBySession = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ sessionId: z.string().trim().min(5).max(200) }).parse(d))

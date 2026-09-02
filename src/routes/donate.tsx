@@ -12,7 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { submitVolunteerOffer, listSignatures } from "@/lib/public.functions";
-import { createDonationCheckout } from "@/lib/donations.functions";
+import {
+  createDonationCheckout,
+  getDonationStats,
+  listPublicDonations,
+} from "@/lib/donations.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { OFFER_TYPES } from "@/lib/media";
 
@@ -108,6 +112,78 @@ function PetitionMomentum() {
         </Button>
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * Live donor transparency: aggregate totals plus the most recent succeeded
+ * gifts. Rows are written only by the verified Stripe webhook, and names are
+ * abbreviated server-side (no emails or Stripe IDs are exposed).
+ */
+function DonorTransparency() {
+  const statsFn = useServerFn(getDonationStats);
+  const listFn = useServerFn(listPublicDonations);
+  const { data: stats } = useQuery({ queryKey: ["donation-stats"], queryFn: () => statsFn({}) });
+  const { data, isLoading } = useQuery({
+    queryKey: ["public-donations"],
+    queryFn: () => listFn({}),
+  });
+  const gifts = data?.donations ?? [];
+  const usd = (c: number) =>
+    (c / 100).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  return (
+    <section aria-labelledby="transparency-heading">
+      <h2 id="transparency-heading" className="text-2xl">Donation transparency</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Every completed gift is recorded automatically and shown here.
+      </p>
+      <Card className="mt-5 shadow-[var(--shadow-card)]">
+        <CardContent className="p-6">
+          <dl className="grid grid-cols-3 gap-3 text-center">
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">Raised</dt>
+              <dd className="mt-1 text-xl font-bold text-gold">{usd(stats?.totalCents ?? 0)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">Supporters</dt>
+              <dd className="mt-1 text-xl font-bold">{stats?.supporters ?? 0}</dd>
+            </div>
+            <div>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">Recurring</dt>
+              <dd className="mt-1 text-xl font-bold">{stats?.recurring ?? 0}</dd>
+            </div>
+          </dl>
+
+          <ul className="mt-6 divide-y divide-border border-t border-border">
+            {isLoading && (
+              <li className="py-4 text-sm text-muted-foreground">Loading recent gifts…</li>
+            )}
+            {!isLoading && gifts.length === 0 && (
+              <li className="py-4 text-sm text-muted-foreground">
+                No completed gifts recorded yet — yours would be the first.
+              </li>
+            )}
+            {gifts.map((g) => (
+              <li key={g.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{g.donor}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(g.createdAt as string).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                    {g.frequency !== "once" ? ` · ${g.frequency}` : ""}
+                  </p>
+                </div>
+                <span className="shrink-0 font-semibold text-gold">{usd(g.amountCents)}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 
@@ -309,6 +385,8 @@ function DonatePage() {
 
         {/* Transparency */}
         <aside className="space-y-8">
+          <DonorTransparency />
+
           <section aria-labelledby="allocation-heading">
             <h2 id="allocation-heading" className="text-2xl">Where your money goes</h2>
             <Card className="mt-5 shadow-[var(--shadow-card)]">

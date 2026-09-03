@@ -19,7 +19,10 @@ export function AnimatedCounter({
   prefix = "",
   suffix = "",
 }: AnimatedCounterProps) {
-  const [display, setDisplay] = useState(0);
+  // Initialize with the final value so the server-rendered / pre-hydration
+  // HTML always shows the real number (crawlers, no-JS, slow connections).
+  // The count-up animation still runs on first scroll-into-view — see run().
+  const [display, setDisplay] = useState(value);
   const ref = useRef<HTMLSpanElement>(null);
   const seen = useRef(false);
   const from = useRef(0);

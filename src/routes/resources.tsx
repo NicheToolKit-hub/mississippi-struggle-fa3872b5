@@ -166,6 +166,26 @@ function ResourcesPage() {
           ))}
         </div>
 
+        {/* Featured video: Know Your Rights */}
+        <Card className="mt-10 shadow-[var(--shadow-card)]">
+          <CardContent className="p-7">
+            <h2 className="text-xl">Know Your Rights: Expungement</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              A quick guide to clearing your record under HB 0487.
+            </p>
+            <div className="mt-4 aspect-video overflow-hidden rounded-lg">
+              <iframe
+                className="h-full w-full"
+                src="https://www.youtube.com/embed/a4Vxij4Ln74"
+                title="Know Your Rights: Expungement (HB 0487)"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Crisis support callout */}
         <Card className="mt-10 border-crimson/40 bg-crimson/5">
           <CardContent className="flex flex-col items-start gap-4 p-7 sm:flex-row sm:items-center sm:justify-between">

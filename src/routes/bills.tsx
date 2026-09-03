@@ -263,6 +263,19 @@ function BillsPage() {
                   </Button>
                 </div>
                 <StageBar stage={bill.stage} />
+
+                {bill.id === "HB 1024" && (
+                  <div className="mt-5 aspect-video overflow-hidden rounded-lg border border-border">
+                    <iframe
+                      className="h-full w-full"
+                      src="https://www.youtube.com/embed/L-ZddB_PrUk"
+                      title="HB 1024 Explainer: Parole Eligibility Expansion Act"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

@@ -38,7 +38,10 @@ export const Route = createFileRoute("/resources")({
 interface ResourceItem {
   name: string;
   detail: string;
+  /** External URL (opens in a new tab) */
   link?: string;
+  /** Internal route path */
+  to?: "/contact" | "/education" | "/submit" | "/profiles" | "/prisons" | "/bills";
 }
 
 interface ResourceGroup {

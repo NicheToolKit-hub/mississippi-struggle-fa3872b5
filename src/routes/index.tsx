@@ -76,7 +76,7 @@ const pillars = [
   },
 ];
 
-/** Illustrative recent updates. Replace with a CMS / database query later. */
+/** Recent updates. Each links to the page with the full story/context. */
 const news = [
   {
     tag: "Legislation",
@@ -84,6 +84,8 @@ const news = [
     title: "Parole Reform Bill HB 1024 advances out of committee",
     excerpt:
       "A bipartisan effort to expand parole eligibility for non-violent offenders cleared its first major hurdle this week.",
+    to: "/bills" as const,
+    cta: "Track this bill",
   },
   {
     tag: "Press Release",
@@ -91,6 +93,8 @@ const news = [
     title: "Coalition delivers 8,400 signatures to the State Capitol",
     excerpt:
       "Advocates and families gathered in Jackson to demand investment in re-entry programs over new prison construction.",
+    to: "/petitions" as const,
+    cta: "Add your signature",
   },
   {
     tag: "Community",
@@ -98,6 +102,8 @@ const news = [
     title: "Hope Dealers expand mentorship to three new counties",
     excerpt:
       "Our volunteer network of formerly incarcerated mentors is now active in the Delta region.",
+    to: "/resources" as const,
+    cta: "Find a mentor",
   },
 ];
 

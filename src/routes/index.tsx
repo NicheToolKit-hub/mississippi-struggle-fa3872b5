@@ -265,9 +265,13 @@ function HomePage() {
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                     {post.excerpt}
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                    Read more <ArrowRight className="h-4 w-4" />
-                  </span>
+                  <Link
+                    to={post.to}
+                    className="group mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-gold"
+                  >
+                    {post.cta}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </CardContent>
               </Card>
             ))}

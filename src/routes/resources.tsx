@@ -188,6 +188,19 @@ function ResourcesPage() {
                             aria-hidden="true"
                           />
                         </a>
+                      ) : item.to ? (
+                        <Link to={item.to} className="group flex items-start justify-between gap-2">
+                          <span>
+                            <span className="block text-sm font-semibold text-foreground group-hover:text-gold">
+                              {item.name}
+                            </span>
+                            <span className="block text-xs text-muted-foreground">{item.detail}</span>
+                          </span>
+                          <ArrowRight
+                            className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground group-hover:text-gold"
+                            aria-hidden="true"
+                          />
+                        </Link>
                       ) : (
                         <span>
                           <span className="block text-sm font-semibold text-foreground">{item.name}</span>

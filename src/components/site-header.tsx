@@ -16,6 +16,7 @@ const navLinks = [
   { to: "/education", label: "Education" },
   { to: "/petitions", label: "Petitions" },
   { to: "/resources", label: "Resources" },
+  { to: "/hope-dealers", label: "Hope Dealers" },
   { to: "/prisons", label: "Prison Map" },
   { to: "/podcast", label: "Podcast" },
 

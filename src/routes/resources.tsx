@@ -42,7 +42,16 @@ interface ResourceItem {
   /** External URL (opens in a new tab) */
   link?: string;
   /** Internal route path */
-  to?: "/contact" | "/education" | "/submit" | "/profiles" | "/prisons" | "/bills";
+  to?:
+    | "/contact"
+    | "/education"
+    | "/submit"
+    | "/profiles"
+    | "/prisons"
+    | "/bills"
+    | "/hope-dealers"
+    | "/donate"
+    | "/resources";
 }
 
 interface ResourceGroup {
@@ -91,13 +100,13 @@ const groups: ResourceGroup[] = [
     items: [
       {
         name: "Returning Citizens Mentorship",
-        detail: "Peer mentoring by formerly incarcerated leaders — request a mentor",
-        to: "/contact",
+        detail: "Peer mentoring by formerly incarcerated leaders — eligibility & matching",
+        to: "/hope-dealers",
       },
       {
         name: "Faith & Family Network",
         detail: "Spiritual care for families of the incarcerated — get connected",
-        to: "/contact",
+        to: "/hope-dealers",
       },
       {
         name: "Study and Struggle",

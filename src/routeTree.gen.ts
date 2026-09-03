@@ -16,6 +16,7 @@ import { Route as BillsRouteImport } from './routes/bills'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as EducationRouteImport } from './routes/education'
+import { Route as HopeDealersRouteImport } from './routes/hope-dealers'
 import { Route as PetitionsRouteImport } from './routes/petitions'
 import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PrisonsRouteImport } from './routes/prisons'
@@ -62,6 +63,11 @@ const DonateRoute = DonateRouteImport.update({
 const EducationRoute = EducationRouteImport.update({
   id: '/education',
   path: '/education',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HopeDealersRoute = HopeDealersRouteImport.update({
+  id: '/hope-dealers',
+  path: '/hope-dealers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PetitionsRoute = PetitionsRouteImport.update({
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
+  '/hope-dealers': typeof HopeDealersRoute
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/prisons': typeof PrisonsRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
+  '/hope-dealers': typeof HopeDealersRoute
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/prisons': typeof PrisonsRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/education': typeof EducationRoute
+  '/hope-dealers': typeof HopeDealersRoute
   '/petitions': typeof PetitionsRoute
   '/podcast': typeof PodcastRoute
   '/prisons': typeof PrisonsRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/donate'
     | '/education'
+    | '/hope-dealers'
     | '/petitions'
     | '/podcast'
     | '/prisons'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/donate'
     | '/education'
+    | '/hope-dealers'
     | '/petitions'
     | '/podcast'
     | '/prisons'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/donate'
     | '/education'
+    | '/hope-dealers'
     | '/petitions'
     | '/podcast'
     | '/prisons'
@@ -270,6 +282,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
   EducationRoute: typeof EducationRoute
+  HopeDealersRoute: typeof HopeDealersRoute
   PetitionsRoute: typeof PetitionsRoute
   PodcastRoute: typeof PodcastRoute
   PrisonsRoute: typeof PrisonsRoute
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       path: '/education'
       fullPath: '/education'
       preLoaderRoute: typeof EducationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hope-dealers': {
+      id: '/hope-dealers'
+      path: '/hope-dealers'
+      fullPath: '/hope-dealers'
+      preLoaderRoute: typeof HopeDealersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/petitions': {
@@ -460,6 +480,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
   EducationRoute: EducationRoute,
+  HopeDealersRoute: HopeDealersRoute,
   PetitionsRoute: PetitionsRoute,
   PodcastRoute: PodcastRoute,
   PrisonsRoute: PrisonsRoute,

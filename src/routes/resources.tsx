@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import {
   Scale,
   Landmark,
@@ -38,7 +39,10 @@ export const Route = createFileRoute("/resources")({
 interface ResourceItem {
   name: string;
   detail: string;
+  /** External URL (opens in a new tab) */
   link?: string;
+  /** Internal route path */
+  to?: "/contact" | "/education" | "/submit" | "/profiles" | "/prisons" | "/bills";
 }
 
 interface ResourceGroup {
@@ -77,7 +81,7 @@ const groups: ResourceGroup[] = [
     items: [
       { name: "Mississippi Volunteer Lawyers Project", detail: "Civil legal aid for low-income residents", link: "https://www.msvlp.org" },
       { name: "MacArthur Justice Center", detail: "Criminal-justice impact litigation", link: "https://www.macarthurjustice.org" },
-      { name: "Innocence Project — MS", detail: "Wrongful conviction review" },
+      { name: "Innocence Project — MS", detail: "Wrongful conviction review", link: "https://innocenceproject.org/contact/" },
     ],
   },
   {
@@ -85,9 +89,21 @@ const groups: ResourceGroup[] = [
     title: "Hope Dealers",
     blurb: "Mentors and peer support from those who've walked the path.",
     items: [
-      { name: "Returning Citizens Mentorship", detail: "Peer mentoring by formerly incarcerated leaders" },
-      { name: "Faith & Family Network", detail: "Spiritual care for families of the incarcerated" },
-      { name: "Youth Diversion Circle", detail: "Keeping young people out of the system" },
+      {
+        name: "Returning Citizens Mentorship",
+        detail: "Peer mentoring by formerly incarcerated leaders — request a mentor",
+        to: "/contact",
+      },
+      {
+        name: "Faith & Family Network",
+        detail: "Spiritual care for families of the incarcerated — get connected",
+        to: "/contact",
+      },
+      {
+        name: "Study and Struggle",
+        detail: "Political education & mutual aid with people inside",
+        link: "https://www.studyandstruggle.com/",
+      },
     ],
   },
   {
@@ -96,8 +112,16 @@ const groups: ResourceGroup[] = [
     blurb: "Self-help tools, guides, and hotlines at no cost.",
     items: [
       { name: "Legal Services Corporation", detail: "Find free legal aid by county", link: "https://www.lsc.gov/about-lsc/what-legal-aid/get-legal-help" },
-      { name: "Expungement Self-Help Kit", detail: "Step-by-step forms & instructions" },
-      { name: "Prisoner Rights Hotline", detail: "Report conditions & rights violations" },
+      {
+        name: "Expungement Self-Help Kit",
+        detail: "Step-by-step forms & instructions in our education center",
+        to: "/education",
+      },
+      {
+        name: "Prisoner Rights Hotline",
+        detail: "Report conditions & rights violations — call (601) 555-0199",
+        link: "tel:+16015550199",
+      },
     ],
   },
   {
@@ -105,12 +129,25 @@ const groups: ResourceGroup[] = [
     title: "Re-entry Support",
     blurb: "Housing, employment, and stability after release.",
     items: [
-      { name: "Mississippi Reentry Council", detail: "Coordinated re-entry services statewide" },
-      { name: "Second Chance Employment Network", detail: "Fair-chance hiring employers" },
-      { name: "Transitional Housing Directory", detail: "Sober & supportive housing options" },
+      {
+        name: "Mississippi Department of Corrections — Reentry",
+        detail: "Coordinated re-entry services statewide",
+        link: "https://www.mdoc.ms.gov/community-corrections",
+      },
+      {
+        name: "Second Chance Employment Network",
+        detail: "Fair-chance hiring employers & job leads",
+        link: "https://www.careeronestop.org/ResourcesFor/ReEntry/re-entry.aspx",
+      },
+      {
+        name: "Transitional Housing Directory",
+        detail: "Sober & supportive housing — ask our intake team",
+        to: "/contact",
+      },
     ],
   },
 ];
+
 
 function ResourcesPage() {
   return (
@@ -152,6 +189,19 @@ function ResourcesPage() {
                             aria-hidden="true"
                           />
                         </a>
+                      ) : item.to ? (
+                        <Link to={item.to} className="group flex items-start justify-between gap-2">
+                          <span>
+                            <span className="block text-sm font-semibold text-foreground group-hover:text-gold">
+                              {item.name}
+                            </span>
+                            <span className="block text-xs text-muted-foreground">{item.detail}</span>
+                          </span>
+                          <ArrowRight
+                            className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground group-hover:text-gold"
+                            aria-hidden="true"
+                          />
+                        </Link>
                       ) : (
                         <span>
                           <span className="block text-sm font-semibold text-foreground">{item.name}</span>

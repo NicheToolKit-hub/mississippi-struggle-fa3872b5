@@ -71,6 +71,8 @@ export function SiteFooter() {
             <li><Link to="/petitions" className="hover:text-gold">Petitions</Link></li>
             <li><Link to="/podcast" className="hover:text-gold">Podcast &amp; Video</Link></li>
             <li><Link to="/resources" className="hover:text-gold">Resources</Link></li>
+            <li><Link to="/hope-dealers" className="hover:text-gold">Hope Dealers</Link></li>
+            <li><Link to="/prisons" className="hover:text-gold">Prison Map</Link></li>
           </ul>
         </nav>
 
